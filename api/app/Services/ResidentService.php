@@ -112,13 +112,16 @@ class ResidentService {
 
     public function updateImage($request, $id)
     {
-        $file = $request->all();
+            
+        if ($request->hasFile('image')) 
+        {           
+            $image = $request->file('image');
+            $nameImage = $id.'_'.$image->getClientOriginalExtension();
+            $path = $image->storeAs('public/uploads', $nameImage);
+    
+            return response()->json(['path' => $path], 201);
 
-        $model = $this->findById($id);
-        $image = $file->file('image');
-        $nameImage = $id.'_'.$model->name.'_'.$image;
-        $path = $image->store('images', $nameImage);
-
-        return response()->json(['path' => $path], 201);
+        }
+        return response()->json(['status' => false, 'message' => 'File not uploaded'], 400);
     }
 }
