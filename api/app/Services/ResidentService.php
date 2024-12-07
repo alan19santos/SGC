@@ -116,10 +116,13 @@ class ResidentService {
         if ($request->hasFile('image')) 
         {           
             $image = $request->file('image');
-            $nameImage = $id.'_'.$image->getClientOriginalExtension();
-            $path = $image->storeAs('public/uploads', $nameImage);
+            $nameImage = $id.'.'.$image->getClientOriginalExtension();
+            $image->storeAs('public/uploads', $nameImage);
+
+            // Retornar o caminho acessível ao navegador
+            $publicPath = asset('storage/uploads/' . $nameImage);
     
-            return response()->json(['path' => $path], 201);
+            return response()->json(['path' => $publicPath], 201);
 
         }
         return response()->json(['status' => false, 'message' => 'File not uploaded'], 400);

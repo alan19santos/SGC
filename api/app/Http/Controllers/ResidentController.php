@@ -42,4 +42,10 @@ class ResidentController extends CrudController
 
         return $this->service->updateImage($request, $id);
     }
+
+    public function getImageUsers($id) {
+        $url =  "storage/public/uploads/{$id}.png";
+
+        return response()->json($url);
+    }
 }

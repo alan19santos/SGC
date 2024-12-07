@@ -42,6 +42,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/beforeUpdate/{id}', [ResidentController::class, 'beforeUpdate']);
         Route::get('/{id}', [ResidentController::class, 'show']);
         Route::post('/update-image/{id}', [ResidentController::class, 'updateImage']);
+        Route::get('/getImageUsers/{id}', [ResidentController::class, 'getImageUsers']);
 
     });
 
