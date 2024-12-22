@@ -72,6 +72,9 @@ class CondominiumRepository extends  BaseRepository {
                 }
             }
         }
+
+        $totalPage = 10;
+        return $relationship->orderBy('condominium.name')->paginate($totalPage);
     }
 
 
