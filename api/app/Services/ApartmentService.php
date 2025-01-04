@@ -44,4 +44,9 @@ class ApartmentService {
     {
         $this->repository->restore($id);
     }
+
+    public function getTowerApartment(int $id) {
+
+        return $this->repository->getTowerApartment($id);
+    }
 }

@@ -36,4 +36,8 @@ class TowerController extends CrudController
         $this->service->restore($id);
         return response()->json(['message' =>'Registro restaurado com sucesso.'], 200);
     }
+
+    public function getTowerCondominium($id) {
+        return $this->service->getTowerCondominium($id);
+    }
 }

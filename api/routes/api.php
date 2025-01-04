@@ -58,6 +58,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('', [TowerController::class, 'index']);
         Route::put('/{id}', [TowerController::class, 'update']);
         Route::get('/{id}', [TowerController::class, 'show']);
+        Route::get('/getTowerCondominium/{id}', [TowerController::class, 'getTowerCondominium']);
     });
 
     //ApartmentController
@@ -66,6 +67,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('', [ApartmentController::class, 'index']);
         Route::put('/{id}', [ApartmentController::class, 'update']);
         Route::get('/{id}', [ApartmentController::class, 'show']);
+        Route::get('/getTowerApartment/{id}', [ApartmentController::class, 'getTowerApartment']);
     });
 
     Route::prefix('status')->group(function () {

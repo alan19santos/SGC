@@ -27,6 +27,10 @@ class TowerService {
         return $this->repository->paginate($id);
     }
 
+    public function getTowerCondominium(int $id) {
+        return $this->repository->getTowerCondominium($id);
+    }
+
     public function update(array $data, $id) {
         $model = $this->findById($id);
         $this->repository->update($model, $data);

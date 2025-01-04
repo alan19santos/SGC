@@ -13,6 +13,6 @@ class Tower extends Model
     protected $fillable = ['name','capacity','type','condominium_id'];
 
     public function condominium(): \Illuminate\Database\Eloquent\Relations\HasMany {
-        return $this->hasMany(Condominium::class, 'condominium_id', 'id');
+        return $this->hasMany(Condominium::class, 'id', 'condominium_id');
     }
 }

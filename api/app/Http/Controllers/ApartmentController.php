@@ -36,5 +36,9 @@ class ApartmentController extends CrudController
         return response()->json(['message' =>'Registro restaurado com sucesso.'], 200);
     }
 
+    public function getTowerApartment(int $id) {
+        return $this->service->getTowerApartment($id);
+    }
+
 
 }
