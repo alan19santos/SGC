@@ -8,6 +8,8 @@ use App\Http\Controllers\TowerController;
 use App\Http\Controllers\ApartmentController;
 use App\Http\Controllers\StatusController;
 use App\Http\Controllers\DriveController;
+use App\Http\Controllers\ServiceProviderController;
+use App\Http\Controllers\VisitorsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -68,6 +70,20 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{id}', [ApartmentController::class, 'update']);
         Route::get('/{id}', [ApartmentController::class, 'show']);
         Route::get('/getTowerApartment/{id}', [ApartmentController::class, 'getTowerApartment']);
+    });
+
+    Route::prefix('serviceProvider')->group(function () {
+        Route::post('/',[ServiceProviderController::class, 'store']);
+        Route::get('', [ServiceProviderController::class, 'index']);
+        Route::put('/{id}', [ServiceProviderController::class, 'update']);
+        Route::get('/{id}', [ServiceProviderController::class, 'show']);
+    });
+
+    Route::prefix('visitors')->group(function () {
+        Route::post('', [VisitorsController::class, 'store']);
+        Route::get('', [VisitorsController::class, 'index']);
+        Route::put('/{id}', [VisitorsController::class, 'update']);
+        Route::get('/{id}', [VisitorsController::class, 'show']);
     });
 
     Route::prefix('status')->group(function () {
