@@ -44,7 +44,10 @@ class ResidentController extends CrudController
     }
 
     public function getImageUsers($id) {
-        $url =  "storage/public/uploads/{$id}.png";
+        
+        $find = $this->service->findById($id);
+        // $url =  "storage/uploads/{$id}.png";
+        $url =  $find->url_image;
 
         return response()->json($url);
     }

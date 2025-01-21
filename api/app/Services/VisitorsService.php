@@ -42,4 +42,9 @@ class VisitorsService {
         $this->repository->restore($id);
     }
 
+    public function getVisitorCondominium(): void
+    {
+        $this->repository->getVisitorCondominium();
+    }
+
 }

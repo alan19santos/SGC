@@ -18,7 +18,7 @@ class ProfileSeeder extends Seeder
 
         $profile = [
             [
-                'name' => 'Administrador',
+                'name' => 'ADMINISTRADOR',
                 'slug' => 'admin',
             ],
             [
@@ -28,6 +28,10 @@ class ProfileSeeder extends Seeder
             [
                 'name' => 'MORADOR',
                 'slug' => 'morador',
+            ],
+            [
+                'name' => 'AUXILIAR',
+                'slug' => 'auxiliar',
             ]
         ];
 

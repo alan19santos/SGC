@@ -17,4 +17,10 @@ class Visitors extends Model
     'concierge_visa',
     'observation',
     'condominium_id'];
+
+    public function condominium(): \Illuminate\Database\Eloquent\Relations\HasMany {
+        return $this->hasMany(Condominium::class, 'id', 'condominium_id');
+    }
 }
+
+

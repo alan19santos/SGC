@@ -34,5 +34,8 @@ class VisitorsController extends CrudController
         return response()->json(['message' =>'Registro restaurado com sucesso.'], 200);
     }
 
+    public function getVisitorCondominium() {
+        return $this->service->getVisitorCondominium();
+    }
    
 }

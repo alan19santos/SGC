@@ -69,18 +69,16 @@ class CondominiumRepository extends  BaseRepository {
                         'condominium_id' => $condominium->id
                     ]);
 
-                    for($j = 1; $j < intval($div_tower_ap); $j++) {
-                        $this->ap->create([
-                            'name' => $j,
-                            'tower_id' =>  $tower->id,
-                            'type' => ($j == 0 ? 'Terreo' : 'normal'),
-                        ]);
+                    // for($j = 1; $j < intval($div_tower_ap); $j++) {
+                    //     $this->ap->create([
+                    //         'name' => $j,
+                    //         'tower_id' =>  $tower->id,
+                    //         'type' => ($j == 0 ? 'Terreo' : 'normal'),
+                    //     ]);
                         
-                    }
+                    // }
                 }
-
-            }
-                      
+            }                     
 
             DB::commit();
         } catch (\Exception $th) {

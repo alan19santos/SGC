@@ -15,26 +15,26 @@ class TowerSeeder extends Seeder
      */
     public function run()
     {
-        $tower = [
-            [
-                'name' => 'Blco 1',
-                'capacity' => 20,
-                'type' => '',
-                'condominium_id' => 1,
-            ],
-            [
-                'name' => 'Blco 2',
-                'capacity' => 20,
-                'type' => '',
-                'condominium_id' => 1,
-            ],
-            [
-                'name' => 'Blco 3',
-                'capacity' => 20,
-                'type' => '',
-                'condominium_id' => 1,
-            ],
-        ];
-        Tower::insert($tower);
+        // $tower = [
+        //     [
+        //         'name' => 'Blco 1',
+        //         'capacity' => 20,
+        //         'type' => '',
+        //         'condominium_id' => 1,
+        //     ],
+        //     [
+        //         'name' => 'Blco 2',
+        //         'capacity' => 20,
+        //         'type' => '',
+        //         'condominium_id' => 1,
+        //     ],
+        //     [
+        //         'name' => 'Blco 3',
+        //         'capacity' => 20,
+        //         'type' => '',
+        //         'condominium_id' => 1,
+        //     ],
+        // ];
+        // Tower::insert($tower);
     }
 }
