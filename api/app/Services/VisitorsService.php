@@ -1,16 +1,13 @@
 <?php
-
-
 namespace App\Services;
 
+use App\Repositories\Core\VisitorsRepositories;
 use Illuminate\Pagination\LengthAwarePaginator;
-use App\Repositories\Core\ApartmentRepository;
 
-class ApartmentService {
-
+class VisitorsService {
+    
     private $repository;
-
-    public function __construct(ApartmentRepository $repository) {
+    public function __construct(VisitorsRepositories $repository) {
         $this->repository = $repository;
     }
 
@@ -45,8 +42,9 @@ class ApartmentService {
         $this->repository->restore($id);
     }
 
-    public function getTowerApartment(int $id) {
-
-        return $this->repository->getTowerApartment($id);
+    public function getVisitorCondominium(): void
+    {
+        $this->repository->getVisitorCondominium();
     }
+
 }

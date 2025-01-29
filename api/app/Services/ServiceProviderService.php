@@ -1,16 +1,15 @@
 <?php
 
-
 namespace App\Services;
-
+use App\Repositories\Core\ServiceProviderRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
-use App\Repositories\Core\ApartmentRepository;
 
-class ApartmentService {
+class ServiceProviderService {
 
     private $repository;
 
-    public function __construct(ApartmentRepository $repository) {
+    public function __construct(ServiceProviderRepository $repository)
+    {
         $this->repository = $repository;
     }
 
@@ -45,8 +44,4 @@ class ApartmentService {
         $this->repository->restore($id);
     }
 
-    public function getTowerApartment(int $id) {
-
-        return $this->repository->getTowerApartment($id);
-    }
 }

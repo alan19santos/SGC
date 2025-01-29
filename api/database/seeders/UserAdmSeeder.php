@@ -18,7 +18,7 @@ class UserAdmSeeder extends Seeder
         $user = [
             [
                 'name' => 'ADMINISTRADOR GERAL',
-                'email' => 'ADMINISTRADOR@SAUDE.BA.GOV.BR',
+                'email' => 'ADMINISTRADOR@SGC.COM.BR',
                 'password' => Hash::make('123456')
             ],
         ];

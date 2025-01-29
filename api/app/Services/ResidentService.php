@@ -7,7 +7,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-
+use Log;
 
 class ResidentService {
     private $repository;
@@ -117,14 +117,30 @@ class ResidentService {
         {           
             $image = $request->file('image');
             $nameImage = $id.'.'.$image->getClientOriginalExtension();
+            Log::info('Existe o arquivo: '.file_exists('http://localhost:8000/storage/uploads/'.$nameImage));
+            if (file_exists('http://localhost:8000/storage/uploads/'.$nameImage)) {
+                unlink('http://localhost:8000/storage/uploads/'.$nameImage);
+            }
+            Log::info('imagem: '.$nameImage);
             $image->storeAs('public/uploads', $nameImage);
-
+            
             // Retornar o caminho acessível ao navegador
             $publicPath = asset('storage/uploads/' . $nameImage);
-    
-            return response()->json(['path' => $publicPath], 201);
+            Log::debug('depois de deletar: '.file_exists(''.$publicPath));
+            $data['resident']['url_image'] = $publicPath;
+            $model = $this->findById($id);
+            Log::debug('id do morador: '.$model->id);
+            $this->repository->update($model, $data);
+            Log::info('Após atualizar');
+            return response()->json(['path' => $publicPath,'status' =>  true], 201);
+
+        } else {
+            Log::warning('não enviou a imagem');
+            return response()->json(['status' => false, 'message' => 'File not uploaded'], 400);
 
         }
-        return response()->json(['status' => false, 'message' => 'File not uploaded'], 400);
     }
+   
+
+    
 }

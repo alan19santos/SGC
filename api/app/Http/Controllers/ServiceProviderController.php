@@ -3,28 +3,29 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Http\Request\StoreUpdateApartmentFormRequest;
-use App\Services\ApartmentService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use App\Services\ServiceProviderService;
 
+use App\Http\Request\StoreUpdateServiceProviderFormRequest;
 
-class ApartmentController extends CrudController
+class ServiceProviderController extends Controller
 {
     private $service;
 
-    public function __construct(ApartmentService $service){
+    public function __construct(ServiceProviderService $service)
+    {
         $this->service = $service;
         parent::__construct($service);
     }
 
-    protected function beforeStore(StoreUpdateApartmentFormRequest $request) {
+    protected function beforeStore(StoreUpdateServiceProviderFormRequest $request) {
 
         $request->validated();
         return $this->store($request);
     }
 
-    protected function beforeUpdate(StoreUpdateApartmentFormRequest $request, int $id): JsonResponse
+    protected function beforeUpdate(StoreUpdateServiceProviderFormRequest $request, int $id): JsonResponse
     {
         $request->validated();
         return $this->update($request, $id);
@@ -34,10 +35,6 @@ class ApartmentController extends CrudController
     {
         $this->service->restore($id);
         return response()->json(['message' =>'Registro restaurado com sucesso.'], 200);
-    }
-
-    public function getTowerApartment(int $id) {
-        return $this->service->getTowerApartment($id);
     }
 
 

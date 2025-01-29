@@ -11,6 +11,7 @@ use App\Models\UserProfile;
 use App\Models\Animals;
 use App\Models\Employee;
 use App\Models\Drive;
+use App\Models\Apartment;
 use App\Exceptions\CredentialsException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -50,9 +51,13 @@ class ResidentRepository extends BaseRepository
         return $number;
     }
 
-/**
- * 
- */
+    /**
+     * Summary of update
+     * @param object $entity
+     * @param array $data
+     * @throws \App\Exceptions\CredentialsException
+     * @return void
+     */
     public function update(object $entity, array $data): void
     {
         try {
@@ -82,9 +87,7 @@ class ResidentRepository extends BaseRepository
 
             $usu = $this->modalUser->create($user);
 
-
-            $profile = isset($data['profile_id']) ? $data['profile_id'] : $this->profile();
-            
+            $profile = isset($data['profile_id']) ? $data['profile_id'] : $this->profile();            
            
             $this->userProfile($usu->id, $profile);                
             
@@ -93,7 +96,7 @@ class ResidentRepository extends BaseRepository
             
             $data['resident_id'] = $resident->id;
             
-            $this->createAssociate($data);
+            $this->createAssociate($data);            
             
             DB::commit();
         } catch (\Exception $th) {
@@ -102,10 +105,24 @@ class ResidentRepository extends BaseRepository
         }
     }
 
+
+    /**
+     * Summary of createApartmant
+     * @param mixed $apartmant
+     * @return void
+     */
+    private function createApartmant($apartmant): void 
+    {
+        $data = ['tower_id'=> $apartmant['resident']['tower_id'],
+                'name'=> $apartmant['apartmant']['name']];
+        $apartmant = Apartment::updateOrCreate($data);
+    }
+
     
     /**
-     * Cadastra animais
-     * @param array $animals
+     * Summary of createAnimals
+     * @param mixed $animals
+     * @return void
      */
     private function createAnimals($animals) 
     {
@@ -121,8 +138,9 @@ class ResidentRepository extends BaseRepository
     
     
     /**
-     * Cadastro de veiculos
-     * @param array $drive
+     * Summary of createDrive
+     * @param mixed $drives
+     * @return void
      */
     private function createDrive($drives) 
     {        
@@ -136,8 +154,9 @@ class ResidentRepository extends BaseRepository
     
     
     /**
-     * cadastro de empregadas
-     * @param array $employee
+     * Summary of createEmployee
+     * @param mixed $employees
+     * @return void
      */
     private function createEmployee($employees) 
     {
@@ -172,6 +191,10 @@ class ResidentRepository extends BaseRepository
         if (isset($data['employee']) && !empty($data['employee']['name'])) {
             //associar empregada caso tenha
             $this->createEmployee($data);
+        }
+
+        if (isset($data['apartmant']) && !empty($data['apartmant'])) {
+            $this->createApartmant($data);
         }
     }
     
@@ -235,6 +258,7 @@ class ResidentRepository extends BaseRepository
 
         return $entity->with('drive', 'animals', 'employee','user', 'condominium');
     }
+
 
 
 }

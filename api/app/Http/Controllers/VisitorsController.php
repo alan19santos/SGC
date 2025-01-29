@@ -2,30 +2,27 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
-use App\Services\TowerService;
-use Illuminate\Http\Request;
+use App\Services\VisitorsService;
 use Illuminate\Http\JsonResponse;
-use App\Http\Request\StoreUpdateTowerFormRequest;
+use App\Http\Request\StoreUpdateVisitorsFormRequest;
 
-
-class TowerController extends CrudController
+class VisitorsController extends CrudController
 {
-
     private $service;
 
-    public function __construct(TowerService $service)
+    public function __construct(VisitorsService $service)
     {
         $this->service = $service;
         parent::__construct($service);
     }
-    protected function beforeStore(StoreUpdateTowerFormRequest $request) {
+
+    protected function beforeStore(StoreUpdateVisitorsFormRequest $request) {
 
         $request->validated();
         return $this->store($request);
     }
 
-    protected function beforeUpdate(StoreUpdateTowerFormRequest $request, int $id): JsonResponse
+    protected function beforeUpdate(StoreUpdateVisitorsFormRequest $request, int $id): JsonResponse
     {
         $request->validated();
         return $this->update($request, $id);
@@ -37,7 +34,8 @@ class TowerController extends CrudController
         return response()->json(['message' =>'Registro restaurado com sucesso.'], 200);
     }
 
-    public function getTowerCondominium($id) {
-        return $this->service->getTowerCondominium($id);
+    public function getVisitorCondominium() {
+        return $this->service->getVisitorCondominium();
     }
+   
 }
