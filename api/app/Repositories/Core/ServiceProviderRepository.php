@@ -17,6 +17,10 @@ class ServiceProviderRepository extends BaseRepository {
         parent::__construct($serviceProvider);
     }
 
+    public function getEntity(): ServiceProvider {
+        return $this->serviceProvider->entity;
+    }
+
     public function getAll(): Collection
     {
         return parent::getAll();

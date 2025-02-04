@@ -15,7 +15,8 @@ class ResidentController extends CrudController
     //
     private $service;
 
-    public function __construct(ResidentService $service) {
+    public function __construct(ResidentService $service) 
+    {
         $this->service = $service;
         parent::__construct($service);
     }

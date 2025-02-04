@@ -18,11 +18,11 @@ return new class extends Migration
             $table->date('date');
             $table->string('unity_tower');
             $table->string('rg');
-            $table->string('drive');
-            $table->string('plate');
+            $table->string('drive')->nullable();
+            $table->string('plate')->nullable();
             $table->string('entry_time');
-            $table->string('departure_time');
-            $table->string('concierge_visa');
+            $table->string('departure_time')->nullable();
+            $table->string('concierge_visa')->nullable();
             $table->timestamps();
         });
     }

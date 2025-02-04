@@ -86,6 +86,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{id}', [VisitorsController::class, 'show']);
         // Route::get('/getAllVisitor', [VisitorsController::class, 'getVisitorCondominium']);
     });
+   
 
     Route::prefix('status')->group(function () {
         Route::get('', [StatusController::class, 'index']);

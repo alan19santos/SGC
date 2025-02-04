@@ -9,6 +9,7 @@ class ServiceProvider extends Model
 {
     use HasFactory;
     
+    protected $table = "service_provider";
     protected $fillable = [
     'name',
     'unity_name',

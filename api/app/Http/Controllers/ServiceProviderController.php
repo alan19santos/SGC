@@ -9,7 +9,7 @@ use App\Services\ServiceProviderService;
 
 use App\Http\Request\StoreUpdateServiceProviderFormRequest;
 
-class ServiceProviderController extends Controller
+class ServiceProviderController extends CrudController
 {
     private $service;
 
