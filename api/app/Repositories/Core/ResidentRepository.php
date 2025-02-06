@@ -26,6 +26,8 @@ class ResidentRepository extends BaseRepository
         parent::__construct($resident);
         $this->modalUser = new User();
     }
+
+     function getEntity(){}
     public function getAll(): Collection
     {
         return $this->relationship($this->resident)->get();

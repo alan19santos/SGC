@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Repositories\Core;
-
+use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Models\UserProfile;
 use App\Models\Profile;
@@ -15,9 +15,11 @@ use Illuminate\Support\Facades\DB;
 
 class UserRepository extends BaseRepository
 {
-    public function __construct(private readonly User $user) {
+    public function __construct(private User $user) {
         parent::__construct($user);
     }
+
+    function getEntity() {}
 
     public function getAll(): Collection
     {
@@ -28,11 +30,13 @@ class UserRepository extends BaseRepository
     {
         try {
             DB::beginTransaction();
+            $data['password'] = Hash::make($data['password']);
             $this->user->create($data);
-
             DB::commit();
+            // return $this->user;
         } catch (\Exception $th) {
             DB::rollback();
+            Log::error($th->getMessage());
             throw new UserException($th->getMessage());
         }
     }
@@ -73,10 +77,10 @@ class UserRepository extends BaseRepository
             ->paginate($totalPage);
     }
 
-    public function getProfileUser($userId) {      
+    public function getProfileUser($profileId) {      
        
-        $profile = UserProfile::where('user_id', $userId)->first();
-        return Profile::where('id', $profile->id)->first();
+        // $profile = UserProfile::where('user_id', $userId)->first();
+        return Profile::where('id', $profileId)->first();
 
     }
 
@@ -104,7 +108,7 @@ class UserRepository extends BaseRepository
 
     private function relationship($entity) {
 
-        return $entity->with('profile');
+        return $entity;
     }
 
 }

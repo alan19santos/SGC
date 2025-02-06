@@ -41,6 +41,8 @@ class AuthController extends Controller
         $user = $this->userService->findByEmail($email);
         return ['email' => $user->email,
             'name' => $user->name,
-            'id' => $user->id,];
+            'profile_id' => $user->profile_id,
+            'id' => $user->id,
+        ];
     }
 }

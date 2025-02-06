@@ -5,18 +5,19 @@ namespace App\Repositories\Core;
 
 use App\Models\Drive;
 use App\Repositories\Core\BaseRepository;
-use App\Exceptions\CredentialsException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
-use Illuminate\Support\Facades\DB;
+
 
 class DriveRepository extends  BaseRepository {
 
-    public function __construct(private readonly Drive $drive)
+    public function __construct(private Drive $drive)
     {
         parent::__construct($drive);
     }
 
+    function getEntity() {}
+    
     public function getAll(): Collection
     {
         return $this->drive->all();

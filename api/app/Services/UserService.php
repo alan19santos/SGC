@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Repositories\Contracts\UserInterface;
-
+use Illuminate\Support\Facades\Log;
 use App\Exceptions\UserException;
 use App\Http\Resources\UserResource;
 use App\Repositories\Core\UserRepository;
@@ -12,6 +12,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use App\Exceptions\CredentialsException;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\PersonalAccessToken;
+use App\Mail\ResidentMail;
 
 class UserService implements UserInterface
 {
@@ -50,12 +51,23 @@ class UserService implements UserInterface
         return new UserResource($this->userRepository->findById($id));
     }
 
-    public function store(array $data): void
+    public function store(array $data)
     {
+        $user = $this->findByEmail($data['email']);
 
-        $data['password'] = Str::random(10);
-        $this->userRepository->store($data);
+        if ($user) {
+            return ['success' => false, 'message' => 'Já existe email cadastrado!'];
+        }
 
+        $data['password'] = (isset($data['password']) ? $data['password'] : Str::random(10));
+        $this->userRepository->store($data); 
+        
+        $user = $this->findByEmail($data['email']);
+      Log::info($user);
+        if ($user) {
+            $this->sendMail( $data, 'Confirmação de cadastro:  Sistema SGC');
+        }
+        
     }
 
     public function update(array $data, int $id): void
@@ -115,4 +127,12 @@ class UserService implements UserInterface
     {
         // TODO: Implement loggedInUser() method.
     }
+
+    private function sendMail($data, $title) {
+        $mail = new ResidentMail($data['email'], $title);
+
+        $mail->send($data);
+    }
+
+
 }

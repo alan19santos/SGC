@@ -10,6 +10,7 @@ use App\Http\Controllers\StatusController;
 use App\Http\Controllers\DriveController;
 use App\Http\Controllers\ServiceProviderController;
 use App\Http\Controllers\VisitorsController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -94,6 +95,11 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('drive')->group(function () {
         Route::get('', [DriveController::class, 'index']);
+    });
+
+
+    Route::prefix('profile')->group(function () {
+        Route::get('', [ProfileController::class, 'index']);
     });
 
     
