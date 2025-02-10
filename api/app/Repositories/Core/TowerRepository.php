@@ -12,10 +12,12 @@ use Illuminate\Support\Facades\DB;
 
 class TowerRepository extends BaseRepository {
 
-    public function __construct(private readonly Tower $tower) {
+    public function __construct(private Tower $tower) {
         parent::__construct($tower);
     }
+    
 
+    function getEntity() {}
     public function getAll(): Collection {
         return parent::getAll();
     }

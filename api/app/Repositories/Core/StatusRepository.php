@@ -3,7 +3,7 @@
 
 namespace App\Repositories\Core;
 
-use App\Models\Status;
+use App\Models\SpaceReservation;
 use App\Repositories\Core\BaseRepository;
 use App\Exceptions\CredentialsException;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -12,12 +12,13 @@ use Illuminate\Support\Facades\DB;
 
 class StatusRepository extends  BaseRepository {
 
-    public function __construct(private readonly Status $status) {
-        parent::__construct($status);
-    }
+   public function __construct(private SpaceReservation $model) {
+    parent::__construct($model);
+   }
 
+    function getEntity() {}
     public function getAll(): Collection {
-        return $this->status->all();
+        return $this->model->all();
     }
 
     public function findWhere(string $column, string $value): Collection
@@ -34,7 +35,7 @@ class StatusRepository extends  BaseRepository {
     {
         try {
             DB::beginTransaction();
-            $this->status->create($data);
+            $this->model->create($data);
             DB::commit();
         } catch (\Exception $th) {
             DB::rollback();
@@ -45,7 +46,7 @@ class StatusRepository extends  BaseRepository {
 
     public function applyFilter(array $items)
     {
-        $relationship = $this->status;
+        $relationship = $this->model;
 
         foreach ($items as $key => $value) {
             if ($value) {

@@ -11,7 +11,7 @@ use App\Http\Controllers\DriveController;
 use App\Http\Controllers\ServiceProviderController;
 use App\Http\Controllers\VisitorsController;
 use App\Http\Controllers\ProfileController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\SpaceReservationController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -87,7 +87,17 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{id}', [VisitorsController::class, 'show']);
         // Route::get('/getAllVisitor', [VisitorsController::class, 'getVisitorCondominium']);
     });
+
+
+    Route::prefix('reserved')->group(function () { 
+        Route::post('', [SpaceReservationController::class, 'store']);
+        Route::get('', [SpaceReservationController::class, 'index']);
+        Route::put('/{id}', [SpaceReservationController::class, 'update']);
+        Route::get('/{id}', [SpaceReservationController::class, 'show']);
+        Route::get('/typeReserved', [SpaceReservationController::class, 'typeReserved']);
+     });
    
+    
 
     Route::prefix('status')->group(function () {
         Route::get('', [StatusController::class, 'index']);

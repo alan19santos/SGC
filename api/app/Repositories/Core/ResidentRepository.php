@@ -18,11 +18,12 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Mail\ResidentMail;
 
 class ResidentRepository extends BaseRepository
 {
     private $modalUser;
-    public function __construct(private readonly Resident $resident) {
+    public function __construct(private Resident $resident) {
         parent::__construct($resident);
         $this->modalUser = new User();
     }
@@ -98,7 +99,9 @@ class ResidentRepository extends BaseRepository
             
             $data['resident_id'] = $resident->id;
             
-            $this->createAssociate($data);            
+            $this->createAssociate($data); 
+            
+            $this->sendMail( $user, 'Confirmação de cadastro:  Sistema SGC');
             
             DB::commit();
         } catch (\Exception $th) {
@@ -261,6 +264,18 @@ class ResidentRepository extends BaseRepository
         return $entity->with('drive', 'animals', 'employee','user', 'condominium');
     }
 
+
+    /**
+     * Summary of sendMail
+     * @param mixed $data
+     * @param mixed $title
+     * @return void
+     */
+    private function sendMail($data, $title) {
+        $mail = new ResidentMail($data['email'], $title);
+
+        $mail->send($data);
+    }
 
 
 }
