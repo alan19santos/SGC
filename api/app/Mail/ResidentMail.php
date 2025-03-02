@@ -16,7 +16,7 @@ class ResidentMail {
 
     public function send($data) {
         Log::info($data);
-        Mail::send('emails.email', ['mensagem' => 'Confirmação de cadastro', 'subtitle' => $this->title], function ($message) use ($data) {
+        Mail::send('emails.email', ['meuMensagem' => 'senha: 123456', 'subtitle' => $this->title], function ($message) use ($data) {
             $message->to($data['email']);
             $message->subject('Criação de Usuário - SGC');
         });

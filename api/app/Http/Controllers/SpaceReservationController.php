@@ -38,6 +38,17 @@ class SpaceReservationController extends CrudController
     public function typeReserved() {
         return $this->service->typeReserved();
     }
+
+
+    /**
+     * Summary of isValidade
+     * @param \Illuminate\Http\Request $request
+     * @param int $id
+     * @return void
+     */
+    public function isValidade(Request $request, int $id) {
+        $this->service->isValidade($request->all(), $id);
+    }
     
 
 

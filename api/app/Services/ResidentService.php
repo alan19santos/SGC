@@ -6,8 +6,9 @@ use GuzzleHttp\Psr7\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
-use Log;
+
 
 class ResidentService {
     private $repository;

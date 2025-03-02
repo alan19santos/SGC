@@ -86,7 +86,7 @@ class ResidentRepository extends BaseRepository
         try {
             DB::beginTransaction();
 
-            $user = ['name' => $data['resident']['name'], 'email' => $data['resident']['email'], 'password' => Hash::make(Str::random(10))];
+            $user = ['name' => $data['resident']['name'], 'email' => $data['resident']['email'], 'password' => Hash::make('123456')];
 
             $usu = $this->modalUser->create($user);
 
@@ -95,13 +95,14 @@ class ResidentRepository extends BaseRepository
             $this->userProfile($usu->id, $profile);                
             
             $data['resident']['user_id'] = $usu->id;
+            $data['resident']['profile_id'] = $profile;
             $resident = $this->resident->create($data['resident']);    
             
             $data['resident_id'] = $resident->id;
             
             $this->createAssociate($data); 
             
-            $this->sendMail( $user, 'Confirmação de cadastro:  Sistema SGC');
+            // $this->sendMail( $user, 'Confirmação de cadastro:  Sistema SGC');
             
             DB::commit();
         } catch (\Exception $th) {
@@ -242,8 +243,8 @@ class ResidentRepository extends BaseRepository
      */
     private function profile()
     {
-        $profile = Profile::where('slug', 'morador')->first();
-        return  $profile->id;
+       
+        return  Profile::where('slug', 'morador')->first();
     }
 
     /**

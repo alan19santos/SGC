@@ -4,7 +4,7 @@
 # Sistema de Gerenciamento de Condominios
 
 Tecnologias utilizadas:
- - Laravel 11
+ - Laravel 10
  - PHP 8.3
  - Banco de dados PostgreSQL 16.4
 
@@ -13,6 +13,8 @@ Modulos Criados ou em construção
  - Crud de Moradores
  - Crud de Unidade
 
+- composer install
+- php artisan storage:link
 
 Criação de Testes Unitário
   - Comandos de Teste:

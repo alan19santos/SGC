@@ -3,7 +3,7 @@
 
 namespace App\Repositories\Core;
 
-use App\Models\SpaceReservation;
+use App\Models\Status;
 use App\Repositories\Core\BaseRepository;
 use App\Exceptions\CredentialsException;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\DB;
 
 class StatusRepository extends  BaseRepository {
 
-   public function __construct(private SpaceReservation $model) {
+   public function __construct(private Status $model) {
     parent::__construct($model);
    }
 

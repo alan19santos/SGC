@@ -1,18 +1,21 @@
 <?php
 
 namespace App\Services;
+use GuzzleHttp\Psr7\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-use App\Repositories\Core\SpaceReservationRepository;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
+use App\Repositories\Core\OccurrentRepository;
 
-class SpaceReservationService {
 
+class OccurrentService {
     private $repository;
 
-    public function __construct(SpaceReservationRepository $repository) {
+    public function __construct(OccurrentRepository $repository) {
         $this->repository = $repository;
-    }
+    }   
 
     public function getAll() {
         return $this->repository->getAll();
@@ -22,16 +25,16 @@ class SpaceReservationService {
         return $this->repository->findById($id);
     }
 
-    public function store($data) {
-        
-        if ($this->repository->applyFilter($data)) {
-            return response()->json(['Já existe uma reserva nesta data e hora!']);
-        }
-        $this->repository->store($data);
-    }
-
     public function paginate(int $id): LengthAwarePaginator {
         return $this->repository->paginate($id);
+    }
+
+    public function store($data) {
+
+        $data['user_id'] = Auth::id();
+        $data['date_occurrence'] = date('Y-m-d H:i:s');
+        $data['resolution'] = false;
+        $this->repository->store($data);
     }
 
     public function update(array $data, $id) {
@@ -49,14 +52,7 @@ class SpaceReservationService {
         $this->repository->restore($id);
     }
 
-    public function isValidade(array $value, int $id) {
-
-        $model = $this->findById($id);
-        return $this->repository->isValidade($model, $value);
-    }
-
-    public function typeReserved() {
-        return $this->repository->typeReserved();
+    public function typeOccurrence() {
+        return $this->repository->typeOccurrence();
     }
 }
-

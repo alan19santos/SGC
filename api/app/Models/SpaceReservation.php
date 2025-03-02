@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use \Illuminate\Database\Eloquent\Relations\BelongsTo;
+use \Illuminate\Database\Eloquent\Relations\hasMany;
 use Illuminate\Database\Eloquent\Model;
 
 class SpaceReservation extends Model
@@ -11,21 +12,17 @@ class SpaceReservation extends Model
     use HasFactory;
 
     protected $table = 'space_reservation';
-    protected $fillable = ['date_reserved','time','observation','user_id','type_reserved_id'] ;
+    protected $fillable = ['date_reserved','time','observation','user_id','type_reserved_id','is_validate'] ;
 
 
-    public function user(): BelongsTo
+    public function user(): belongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class,'user_id', 'id');
     }
 
 
-    public function condominium(): BelongsTo {
-        return $this->belongsTo(Condominium::class);
-    }
-
-    public function tipe(): BelongsTo {
-        return $this->belongsTo(TypeReserved::class);
+    public function type(): BelongsTo {
+        return $this->belongsTo(TypeReserved::class, 'type_reserved_id', 'id');
     }
 
     

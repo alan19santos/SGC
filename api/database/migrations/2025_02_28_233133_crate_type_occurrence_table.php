@@ -8,14 +8,15 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
+     * 
      */
     public function up(): void
     {
-        //
-        Schema::table('resident', function (Blueprint $table) {           
-    
-            $table->foreign('status_id')->references('id')->on('status');
-           
+        Schema::create('type_occurrence', function (Blueprint $table) {
+            $table->id();
+            $table->string('description')->nullable();
+            $table->string('slug')->nullable();
+            
         });
     }
 
@@ -24,7 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
-        Schema::dropIfExists('resident');
+        Schema::dropIfExists('type_occurrence');
     }
 };

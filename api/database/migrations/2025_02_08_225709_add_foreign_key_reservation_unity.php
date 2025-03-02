@@ -8,15 +8,16 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
+     * Não existe mais necessidade dessa migrations, então, decidi comentar o código
      */
     public function up(): void
     {
-        Schema::table('space_reservation', function (Blueprint $table) {          
+        // Schema::table('space_reservation', function (Blueprint $table) {          
     
           
-            $table->foreignId('condominium_id')->constrained('condominium')->nullable();
+        //     $table->foreignId('condominium_id')->constrained('condominium')->nullable();
            
-        });
+        // });
     }
 
     /**
@@ -24,9 +25,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('space_reservation', function (Blueprint $table) {
+        // Schema::table('space_reservation', function (Blueprint $table) {
          
-            $table->dropColumn('condominium_id');
-        });
+        //     $table->dropColumn('condominium_id');
+        // });
     }
 };

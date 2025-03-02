@@ -6,7 +6,7 @@
 <body>
     <h1>Confirmação de cadastro</h1>
     <body>
-        {{ $message }}
+        {{ strval($meuMensagem) }}
     </body>
 
 </body>

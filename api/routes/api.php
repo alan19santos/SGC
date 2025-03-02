@@ -12,6 +12,7 @@ use App\Http\Controllers\ServiceProviderController;
 use App\Http\Controllers\VisitorsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SpaceReservationController;
+use App\Http\Controllers\OccurrenceController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -73,7 +74,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/getTowerApartment/{id}', [ApartmentController::class, 'getTowerApartment']);
     });
 
-    Route::prefix('serviceProvider')->group(function () {
+    Route::prefix('service-provider')->group(function () {
         Route::post('/',[ServiceProviderController::class, 'store']);
         Route::get('', [ServiceProviderController::class, 'index']);
         Route::put('/{id}', [ServiceProviderController::class, 'update']);
@@ -90,12 +91,23 @@ Route::middleware('auth:sanctum')->group(function () {
 
 
     Route::prefix('reserved')->group(function () { 
+        Route::get('/getTypeReserved', [SpaceReservationController::class, 'typeReserved']);
         Route::post('', [SpaceReservationController::class, 'store']);
         Route::get('', [SpaceReservationController::class, 'index']);
         Route::put('/{id}', [SpaceReservationController::class, 'update']);
         Route::get('/{id}', [SpaceReservationController::class, 'show']);
-        Route::get('/typeReserved', [SpaceReservationController::class, 'typeReserved']);
+        Route::put('/isValidade/{id}', [SpaceReservationController::class,'isValidade']);
      });
+
+
+    Route::prefix('occurrence')->group(function () {
+        Route::get('/getTypeOccurrence', [OccurrenceController::class,'typeOccurrence']);
+        Route::get('', [OccurrenceController::class,'index']);
+        Route::get('/{id}', [OccurrenceController::class,'show']);
+        Route::post('', [OccurrenceController::class,'store']);
+        Route::put('/{id}', [OccurrenceController::class,'update']);
+        Route::delete('', [OccurrenceController::class,'delete']);
+    });
    
     
 

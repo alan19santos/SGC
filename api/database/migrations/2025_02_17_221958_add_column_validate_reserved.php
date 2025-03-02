@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        //
-        Schema::table('resident', function (Blueprint $table) {           
+        Schema::table('space_reservation', function (Blueprint $table) {          
     
-            $table->foreign('status_id')->references('id')->on('status');
+          
+            $table->boolean('is_validate')->default(false);
            
         });
     }
@@ -24,7 +24,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
-        Schema::dropIfExists('resident');
+        Schema::table('space_reservation', function (Blueprint $table) {
+         
+            $table->dropColumn('is_validate');
+        });
     }
 };
