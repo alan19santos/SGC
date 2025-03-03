@@ -66,6 +66,8 @@ class ResidentRepository extends BaseRepository
         try {
             DB::beginTransaction();
             $entity->update($data['resident']);
+            $data['resident_id'] = $entity->id;
+            $this->createAssociate( $data);
             DB::commit();
         } catch (\Throwable $th) {
             DB::rollback();
@@ -100,7 +102,7 @@ class ResidentRepository extends BaseRepository
             
             $data['resident_id'] = $resident->id;
             
-            $this->createAssociate($data); 
+            $this->createAssociate( $data); 
             
             // $this->sendMail( $user, 'Confirmação de cadastro:  Sistema SGC');
             

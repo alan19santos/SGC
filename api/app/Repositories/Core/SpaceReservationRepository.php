@@ -22,7 +22,7 @@ class SpaceReservationRepository extends BaseRepository {
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function paginate(int $perPage = 10): LengthAwarePaginator { 
-        return $this->relationship( $this->entity)->paginate($perPage);
+        return $this->loadRelationships( $this->entity, ['type','user'])->paginate($perPage);
     }
 
     /**
@@ -31,7 +31,16 @@ class SpaceReservationRepository extends BaseRepository {
      */
     public function getAll(): Collection  {
 
-        return $this->relationship( $this->entity );
+        return $this->loadRelationships( $this->entity, ['type','user'] )->getAll();
+    }
+
+    /**
+     * Summary of findById
+     * @param int $id
+     * @return object
+     */
+    public function findById(int $id): object {
+        return $this->loadRelationships( $this->entity, ['type','user'] )->where('user_id', $id)->get();
     }
 
     /**
@@ -59,14 +68,14 @@ class SpaceReservationRepository extends BaseRepository {
         return TypeReserved::get();
     }
 
-    /**
-     * Summary of relationship
-     * @param mixed $entity
-     */
-    private function relationship($entity) {
-
-        return $entity->with('type','user')->get();
+    private function loadRelationships($query, $relationships = [])
+    {        
+        return $query->with(
+            $relationships
+        );
     }
+
+   
 
     /**
      * Summary of applyFilter
@@ -74,7 +83,7 @@ class SpaceReservationRepository extends BaseRepository {
      */
     public function applyFilter(array $items)
     {
-        $relationship = $this->relationship($this->entity);
+        $relationship = $this->loadRelationships($this->entity, ['type','user']);
 
         foreach ($items as $key => $value) {
             if ($value) {
