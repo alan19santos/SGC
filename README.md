@@ -8,11 +8,17 @@ Tecnologias utilizadas:
  - PHP 8.3
  - Banco de dados PostgreSQL 16.4
 
-Modulos Criados ou em construção
+Modulos Criados ou em construção:
  - Crud de Usuário
  - Crud de Moradores
  - Crud de Unidade
+ - Crud de Reserva
+ - Crud de Ocorrências
+ - Crud de Visitantes
+ - Crud de Prestador de Serviços
+ ......
 
+Comandos:
 - composer install
 - php artisan storage:link
 
