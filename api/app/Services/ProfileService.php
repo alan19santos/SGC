@@ -20,6 +20,9 @@ class ProfileService {
         return $this->repository->findById($id);
     }
 
+    public function filterSlug(string $slug) {
+        $this->repository->filterSlug($slug);
+    }
     public function store($data) {
         $this->repository->store($data);
     }

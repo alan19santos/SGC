@@ -19,7 +19,8 @@ class UserAdmSeeder extends Seeder
             [
                 'name' => 'ADMINISTRADOR GERAL',
                 'email' => 'ADMINISTRADOR@SGC.COM.BR',
-                'password' => Hash::make('123456')
+                'password' => Hash::make('123456'),
+                'profile_id' => 1
             ],
         ];
         User::insert($user);

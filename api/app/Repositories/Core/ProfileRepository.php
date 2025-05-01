@@ -32,4 +32,9 @@ class ProfileRepository extends BaseRepository {
     }
 
 
+    public function filterSlug(string $slug) {
+        return $this->profile->where('slug', $slug)->first();
+    }
+
+
 }

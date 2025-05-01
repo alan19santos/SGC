@@ -113,14 +113,16 @@ class ResidentService {
 
     public function updateImage($request, $id)
     {
-            
+            Log::debug('Request all', [$request->all()]);     
+            Log::debug('Request file', [$request->all()]);     
+          
         if ($request->hasFile('image')) 
         {           
             $image = $request->file('image');
             $nameImage = $id.'.'.$image->getClientOriginalExtension();
-            Log::info('Existe o arquivo: '.file_exists('http://localhost:8000/storage/uploads/'.$nameImage));
-            if (file_exists('http://localhost:8000/storage/uploads/'.$nameImage)) {
-                unlink('http://localhost:8000/storage/uploads/'.$nameImage);
+           
+            if (file_exists(env('UPLOAD_IMAGE').$nameImage)) {
+                unlink(env('UPLOAD_IMAGE').$nameImage);
             }
             Log::info('imagem: '.$nameImage);
             $image->storeAs('public/uploads', $nameImage);

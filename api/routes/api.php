@@ -40,8 +40,8 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('resident')->group(function () {
-        Route::post('', [ResidentController::class, 'store']);
         Route::get('', [ResidentController::class, 'index']);
+        Route::post('', [ResidentController::class, 'store']);
         Route::put('/{id}', [ResidentController::class, 'update']);
         Route::put('/beforeUpdate/{id}', [ResidentController::class, 'beforeUpdate']);
         Route::get('/{id}', [ResidentController::class, 'show']);
@@ -105,6 +105,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('', [OccurrenceController::class,'index']);
         Route::get('/{id}', [OccurrenceController::class,'show']);
         Route::post('', [OccurrenceController::class,'store']);
+        Route::post('/historicOccurrence', [OccurrenceController::class,'storeHistoric']);
         Route::put('/{id}', [OccurrenceController::class,'update']);
         Route::delete('', [OccurrenceController::class,'delete']);
     });
@@ -122,6 +123,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('profile')->group(function () {
         Route::get('', [ProfileController::class, 'index']);
+        Route::get('/filterSlug', [ProfileController::class, 'filterSlug']);
     });
 
     

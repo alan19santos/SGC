@@ -5,11 +5,12 @@ namespace App\Repositories\Core;
 
 use App\Models\Occurrence;
 use App\Models\TypeOccurrence;
+use App\Models\HistoricOccurrence;
 use App\Exceptions\CredentialsException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
-
+use Illuminate\Support\Facades\Log;
 class OccurrentRepository extends BaseRepository {
 
   
@@ -95,7 +96,34 @@ class OccurrentRepository extends BaseRepository {
     }
 
 
+    /**
+     * Summary of storeHistoric
+     * Salvando histórico de observações de ocorrencias
+     * @param mixed $array
+     * @return void
+     */
+    public function storeHistoric($array) {
 
+        $data = ['observations' => $array['data']['observations'], 'occurrence_id' => $array['data']['id']];
+        $occurrence = $this->occurrence->where('id', $array['data']['id'])->first();
+        DB::beginTransaction();
+        try {           
+            HistoricOccurrence::create($data);
+
+            $occurrence->isResolved = true;
+            $occurrence->save();
+
+            DB::commit();
+         
+        } catch (\Exception $ex) {
+          
+            DB::rollBack();
+            Log::error('Erro ao inserir histórico: ', [$ex->getMessage()]);
+          
+        }
+
+        
+    }
 
 }
 

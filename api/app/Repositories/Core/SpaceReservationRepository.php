@@ -31,7 +31,7 @@ class SpaceReservationRepository extends BaseRepository {
      */
     public function getAll(): Collection  {
 
-        return $this->loadRelationships( $this->entity, ['type','user'] )->getAll();
+        return $this->loadRelationships( $this->entity, ['type','user'] )->get();
     }
 
     /**
@@ -95,16 +95,14 @@ class SpaceReservationRepository extends BaseRepository {
                         $relationship->where("space_reservation.time","=", $value);
                     }
                     if ($key == 'type_reserved_id') {
-                        $relationship->whereRaw("space_reservation.type_reserved_id","=", $value);
+                        $relationship->where("space_reservation.type_reserved_id","=", $value);
                     }
-                    if ($key == "is_validate") {
-                        $relationship->whereRaw("space_reservation.is_validate","=", $value);
-                    }
+                   
                 }
             }
         }
         $totalPage = 10;
-        return $relationship->orderBy('user.name')->paginate($totalPage);
+        return $relationship->paginate($totalPage);
     }
 
     /**

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\OccurrentService;
 use Illuminate\Http\JsonResponse;
 use App\Http\Request\StoreUpdateOccurrentFormRequest;
+use Illuminate\Http\Request;
 
 class OccurrenceController extends CrudController
 {
@@ -39,6 +40,10 @@ class OccurrenceController extends CrudController
 
     public function typeOccurrence() {
         return $this->service->typeOccurrence();
+    }
+
+    public function storeHistoric(Request $request) {
+        return $this->service->storeHistoric($request->all());
     }
 
 }

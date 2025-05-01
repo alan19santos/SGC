@@ -17,7 +17,7 @@ use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 use App\Mail\ResidentMail;
 
 class ResidentRepository extends BaseRepository
@@ -46,7 +46,7 @@ class ResidentRepository extends BaseRepository
 
     public function findById(int $id): object
     {
-        return $this->relationship($this->resident)->findOrFail($id);
+        return $this->relationship($this->resident, ['drive', 'animals', 'employee','user', 'condominium'])->findOrFail($id);
     }
 
     public function formatNumber(string $number) {
@@ -88,23 +88,30 @@ class ResidentRepository extends BaseRepository
         try {
             DB::beginTransaction();
 
-            $user = ['name' => $data['resident']['name'], 'email' => $data['resident']['email'], 'password' => Hash::make('123456')];
+            $profile = isset($data['profile_id']) ? $data['profile_id'] : $this->profile()->id;   
 
-            $usu = $this->modalUser->create($user);
+            $user = ['name' => $data['resident']['name'], 'email' => $data['resident']['email'], 'profile_id' => $profile, 'password' => Hash::make('123456')];
 
-            $profile = isset($data['profile_id']) ? $data['profile_id'] : $this->profile();            
+            $usu = $this->modalUser->create($user);                     
            
             $this->userProfile($usu->id, $profile);                
             
             $data['resident']['user_id'] = $usu->id;
             $data['resident']['profile_id'] = $profile;
+
+             # Apartamento do morador
+             if (isset($data['apartmant'])) {
+                $data['resident']['apartment_id'] = $this->createApartmant($data);
+            }
+            Log::debug('dados resident', [$data]);
             $resident = $this->resident->create($data['resident']);    
             
-            $data['resident_id'] = $resident->id;
-            
+            $data['resident_id'] = $resident->id;           
+
+            // log::debug('dados', [$data]);
             $this->createAssociate( $data); 
             
-            // $this->sendMail( $user, 'Confirmação de cadastro:  Sistema SGC');
+            $this->sendMail( $user, 'Confirmação de cadastro:  Sistema SGC');
             
             DB::commit();
         } catch (\Exception $th) {
@@ -117,13 +124,17 @@ class ResidentRepository extends BaseRepository
     /**
      * Summary of createApartmant
      * @param mixed $apartmant
-     * @return void
+     * @return int
      */
-    private function createApartmant($apartmant): void 
+    private function createApartmant($apartmant) 
     {
         $data = ['tower_id'=> $apartmant['resident']['tower_id'],
+                'condominium_id'=> $apartmant['resident']['condominium_id'],
                 'name'=> $apartmant['apartmant']['name']];
-        $apartmant = Apartment::updateOrCreate($data);
+                Log::debug('apartamento', [$data]);
+       Apartment::updateOrCreate($data);
+        $apartmants = Apartment::where('name','=', $apartmant['apartmant']['name'])->where('tower_id','=',$apartmant['resident']['tower_id'])->first();
+        return $apartmants->id;
     }
 
     
@@ -201,9 +212,9 @@ class ResidentRepository extends BaseRepository
             $this->createEmployee($data);
         }
 
-        if (isset($data['apartmant']) && !empty($data['apartmant'])) {
-            $this->createApartmant($data);
-        }
+        // if (isset($data['apartmant']) && !empty($data['apartmant'])) {
+        //     $this->createApartmant($data);
+        // }
     }
     
    public function findWhereFirst(string $column, string $value)
@@ -262,9 +273,9 @@ class ResidentRepository extends BaseRepository
     /**
      * Função que buscar os dados associados
      */
-    private function relationship($entity) {
+    private function relationship($entity, $relations = []) {
 
-        return $entity->with('drive', 'animals', 'employee','user', 'condominium');
+        return $entity->with($relations);
     }
 
 

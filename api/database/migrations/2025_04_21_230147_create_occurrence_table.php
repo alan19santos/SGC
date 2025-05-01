@@ -8,11 +8,10 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
-     * Rodar antes type_occurrence
      */
     public function up(): void
     {
-        Schema::create('Occurrence', function (Blueprint $table) {
+        Schema::create('occurrence', function (Blueprint $table) {
             $table->id();
             $table->timestamp('date_occurrence')->nullable();
             $table->text('observation')->nullable();
@@ -30,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('Occurrence');
+        Schema::dropIfExists('occurrence');
     }
 };

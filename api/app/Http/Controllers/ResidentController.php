@@ -21,7 +21,7 @@ class ResidentController extends CrudController
         parent::__construct($service);
     }
 
-    protected function beforeStore(StoreUpdateResidentFormRequest $request): JsonResource
+    protected function beforeStore(StoreUpdateResidentFormRequest $request)
     {
         $request->validated();
         return $this->store($request);

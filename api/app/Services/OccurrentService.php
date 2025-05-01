@@ -55,4 +55,10 @@ class OccurrentService {
     public function typeOccurrence() {
         return $this->repository->typeOccurrence();
     }
+
+
+    public function storeHistoric(array $data) {
+       
+        return $this->repository->storeHistoric($data);
+    }
 }

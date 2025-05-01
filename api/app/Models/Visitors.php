@@ -9,6 +9,7 @@ class Visitors extends Model
 {
     use HasFactory;
 
+    protected $table = 'visitors';
     protected $fillable = ['name',
     'tower',
     'date',

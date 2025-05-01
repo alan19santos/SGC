@@ -20,7 +20,7 @@ class DriveRepository extends  BaseRepository {
     
     public function getAll(): Collection
     {
-        return $this->drive->all();
+        return $this->relationship($this->drive, ['resident'])->get();
     }
 
     public function findWhere(string $column, string $value): Collection
@@ -56,6 +56,11 @@ class DriveRepository extends  BaseRepository {
                 }
             }
         }
+    }
+
+
+    private function relationship($entity, $relations = []) {
+        return $entity->with($relations);
     }
 
 }
