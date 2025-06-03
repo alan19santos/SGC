@@ -17,7 +17,7 @@ class CondominiumRepository extends  BaseRepository {
     private $tower;
     private $ap;
 
-    public function __construct(private readonly Condominium $condominium) {
+    public function __construct(private Condominium $condominium) {
         parent::__construct($condominium);
         $this->tower = new Tower();
         $this->ap = new Apartment();
@@ -47,21 +47,21 @@ class CondominiumRepository extends  BaseRepository {
      * listar de acordo e salvar a torre na base de dados
      * dividir a quantidade pelas torres pra saber capacidade de APs por torres.
      */
-     
+
     public function store(array $data): void
     {
         try {
-            DB::beginTransaction();            
+            DB::beginTransaction();
             $condominium = $this->condominium->create($data);
-            
+
             if (isset($data['qtd_tower'])) {
                 $div_tower_ap = (intval($data['qtd_ap']) / intval($data['qtd_tower']));
                 #ex: 272 / 2 = 136
 
                 for($i = 1; $i < intval($data['qtd_tower']); $i++) {
                     #capacidade da torre
-                    #qtd torre * quantidade andar                   
-                    
+                    #qtd torre * quantidade andar
+
                    $tower = $this->tower->create([
                         'name' => 'Torre '. $i,
                         'capacity' => round($div_tower_ap),
@@ -75,10 +75,10 @@ class CondominiumRepository extends  BaseRepository {
                     //         'tower_id' =>  $tower->id,
                     //         'type' => ($j == 0 ? 'Terreo' : 'normal'),
                     //     ]);
-                        
+
                     // }
                 }
-            }                     
+            }
 
             DB::commit();
         } catch (\Exception $th) {

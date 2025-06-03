@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 use \Illuminate\Database\Eloquent\Collection;
 
 class ApartmentRepository extends BaseRepository {
-    public function __construct(private readonly Apartment $apart) {
+    public function __construct(private Apartment $apart) {
         parent::__construct($apart);
     }
 
@@ -29,7 +29,7 @@ class ApartmentRepository extends BaseRepository {
     }
 
     public function getTowerApartment(int $id) {
-        $dados = $this->loadRelationships($this->apart, ['tower'])->where('tower_id', $id)->get();     
+        $dados = $this->loadRelationships($this->apart, ['tower'])->where('tower_id', $id)->get();
         return $dados;
     }
 
@@ -47,7 +47,7 @@ class ApartmentRepository extends BaseRepository {
 
     private function loadRelationships($query, $relationships = [])
     {
-        
+
         return $query->with(
             $relationships
         );

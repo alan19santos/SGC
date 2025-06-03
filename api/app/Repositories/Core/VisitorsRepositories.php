@@ -8,9 +8,9 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
 
 
-class VisitorsRepositories extends BaseRepository {    
+class VisitorsRepositories extends BaseRepository {
 
-    public function __construct(private readonly Visitors $visitors)
+    public function __construct(private Visitors $visitors)
     {
         parent::__construct($visitors);
     }
@@ -47,7 +47,7 @@ class VisitorsRepositories extends BaseRepository {
     }
 
     private function loadRelationships($query, $relationships = [])
-    {        
+    {
         return $query->with(
             $relationships
         );

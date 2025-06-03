@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 class ServiceProviderRepository extends BaseRepository {
 
 
-    public function __construct(private readonly ServiceProvider $serviceProvider)
+    public function __construct(private ServiceProvider $serviceProvider)
     {
         parent::__construct($serviceProvider);
     }
@@ -47,7 +47,7 @@ class ServiceProviderRepository extends BaseRepository {
     }
 
     private function loadRelationships($query, $relationships = [])
-    {        
+    {
         return $query->with(
             $relationships
         );
