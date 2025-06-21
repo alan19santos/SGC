@@ -23,12 +23,16 @@ class Resident extends Model
     }
 
     public function animals() {
-        return $this->belongsToMany(Animals::class, 'resident_animals', 'resident_id' , 'animal_id'); 
+        return $this->belongsToMany(Animals::class, 'resident_animals', 'resident_id' , 'animal_id');
     }
 
 
     public function employee() {
         return $this->belongsToMany(Employee::class, 'resident_employee', 'resident_id','employee_id');
+    }
+
+    public function apartment() {
+        return $this->belongsTo(Apartment::class, 'apartment_id', 'id');
     }
 
     public function condominium() {

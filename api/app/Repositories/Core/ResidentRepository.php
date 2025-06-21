@@ -38,7 +38,7 @@ class ResidentRepository extends BaseRepository
         $user = $this->modalUser->where('email', $email)->first();
         return ($user ? $user : null) ;
     }
-    
+
     public function getUserById(int $id) {
         $user = $this->modalUser->where('id', $id)->first();
         return ($user ? $user : null) ;
@@ -46,7 +46,7 @@ class ResidentRepository extends BaseRepository
 
     public function findById(int $id): object
     {
-        return $this->relationship($this->resident, ['drive', 'animals', 'employee','user', 'condominium'])->findOrFail($id);
+        return $this->relationship($this->resident, ['drive', 'animals', 'employee','user', 'condominium','apartment'])->findOrFail($id);
     }
 
     public function formatNumber(string $number) {
@@ -84,18 +84,18 @@ class ResidentRepository extends BaseRepository
      */
     public function store(array $data): void
     {
-       
+
         try {
             DB::beginTransaction();
 
-            $profile = isset($data['profile_id']) ? $data['profile_id'] : $this->profile()->id;   
+            $profile = isset($data['profile_id']) ? $data['profile_id'] : $this->profile()->id;
 
             $user = ['name' => $data['resident']['name'], 'email' => $data['resident']['email'], 'profile_id' => $profile, 'password' => Hash::make('123456')];
 
-            $usu = $this->modalUser->create($user);                     
-           
-            $this->userProfile($usu->id, $profile);                
-            
+            $usu = $this->modalUser->create($user);
+
+            $this->userProfile($usu->id, $profile);
+
             $data['resident']['user_id'] = $usu->id;
             $data['resident']['profile_id'] = $profile;
 
@@ -104,15 +104,15 @@ class ResidentRepository extends BaseRepository
                 $data['resident']['apartment_id'] = $this->createApartmant($data);
             }
             Log::debug('dados resident', [$data]);
-            $resident = $this->resident->create($data['resident']);    
-            
-            $data['resident_id'] = $resident->id;           
+            $resident = $this->resident->create($data['resident']);
+
+            $data['resident_id'] = $resident->id;
 
             // log::debug('dados', [$data]);
-            $this->createAssociate( $data); 
-            
+            $this->createAssociate( $data);
+
             $this->sendMail( $user, 'Confirmação de cadastro:  Sistema SGC');
-            
+
             DB::commit();
         } catch (\Exception $th) {
             DB::rollback();
@@ -126,7 +126,7 @@ class ResidentRepository extends BaseRepository
      * @param mixed $apartmant
      * @return int
      */
-    private function createApartmant($apartmant) 
+    private function createApartmant($apartmant)
     {
         $data = ['tower_id'=> $apartmant['resident']['tower_id'],
                 'condominium_id'=> $apartmant['resident']['condominium_id'],
@@ -137,58 +137,58 @@ class ResidentRepository extends BaseRepository
         return $apartmants->id;
     }
 
-    
+
     /**
      * Summary of createAnimals
      * @param mixed $animals
      * @return void
      */
-    private function createAnimals($animals) 
+    private function createAnimals($animals)
     {
-       
-        $animal = Animals::updateOrCreate($animals['animals']);         
+
+        $animal = Animals::updateOrCreate($animals['animals']);
        ResidentAnimals::updateOrCreate(
             [
-                'animal_id'=> $animal->id, 
+                'animal_id'=> $animal->id,
                 'resident_id' => $animals['resident_id']
             ]);
-                       
+
     }
-    
-    
+
+
     /**
      * Summary of createDrive
      * @param mixed $drives
      * @return void
      */
-    private function createDrive($drives) 
-    {        
-       $drive = Drive::updateOrCreate($drives['drive']);       
+    private function createDrive($drives)
+    {
+       $drive = Drive::updateOrCreate($drives['drive']);
         DriveResident::updateOrCreate(
             [
-                'drive_id'=> $drive->id, 
+                'drive_id'=> $drive->id,
                 'resident_id' => $drives['resident_id']
             ]);
     }
-    
-    
+
+
     /**
      * Summary of createEmployee
      * @param mixed $employees
      * @return void
      */
-    private function createEmployee($employees) 
+    private function createEmployee($employees)
     {
        $employee = Employee::updateOrCreate($employees['employee']);
         ResidentEmployee::updateOrCreate(
             [
-                'employee_id'=> $employee->id, 
+                'employee_id'=> $employee->id,
                 'resident_id' => $employees['resident_id']
             ]
             );
     }
 
-    
+
     /**
      * Cadastra as associações
      * @param array $data
@@ -196,17 +196,17 @@ class ResidentRepository extends BaseRepository
      */
     private function createAssociate($data)
     {
-     
+
         if (isset($data['animals']) && !empty($data['animals']['name'])) {
             //associar caso tenha animal
             $this->createAnimals($data);
         }
-        
+
         if (isset($data['drive']) && !empty($data['drive']['description'])) {
             //associar caso tenha carro
             $this->createDrive($data);
         }
-        
+
         if (isset($data['employee']) && !empty($data['employee']['name'])) {
             //associar empregada caso tenha
             $this->createEmployee($data);
@@ -216,7 +216,7 @@ class ResidentRepository extends BaseRepository
         //     $this->createApartmant($data);
         // }
     }
-    
+
    public function findWhereFirst(string $column, string $value)
    {
        return $this->resident->where($column, $value)->first(); // TODO: Change the autogenerated stub
@@ -256,7 +256,7 @@ class ResidentRepository extends BaseRepository
      */
     private function profile()
     {
-       
+
         return  Profile::where('slug', 'morador')->first();
     }
 
@@ -265,7 +265,7 @@ class ResidentRepository extends BaseRepository
      * @param $profile
      * @return void
      */
-    private function userProfile($user_id, $profile_id) 
+    private function userProfile($user_id, $profile_id)
     {
        UserProfile::created(['user_id' => $user_id, 'profile_id' => $profile_id]);
     }
