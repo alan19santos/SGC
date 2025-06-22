@@ -7,6 +7,7 @@ Tecnologias utilizadas:
  - Laravel 10
  - PHP 8.3
  - Banco de dados PostgreSQL 16.4
+ - Dockerfile e Docker-compose
 
 Modulos Criados ou em construção:
  - Crud de Usuário
@@ -35,3 +36,18 @@ Comandos PHPUnit Exemplos:
 - Criação de migrations
  # Rodar migrate especifica
 - php artisan migrate --path=/database/migrations/selected/
+
+
+Rodando o Docker:
+- docker-compose up -d --build
+- docker exec -it sgc bash
+
+# Rodar as migrate no servidor
+- composer install
+- php artisan key:generate
+- php artisan migrate
+
+# Rodar a seeders para logar no sistema
+- php artisan db:seed --class=UserAdmSeeder
+- php artisan db:seed --class=ProfileSeeder
+- php artisan db:seed --class=UserProfileSeeder
