@@ -2,9 +2,9 @@ name: CI Pipeline
 
 on:
   push:
-    branches: [ feature/trabalhando-pipeline ]
+    branches: [ feature/trabalhando-pipline ]
   pull_request:
-    branches: [ feature/trabalhando-pipeline ]
+    branches: [ feature/trabalhando-pipline ]
 
 
 jobs:
