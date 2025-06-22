@@ -38,19 +38,19 @@ jobs:
 
     - name: Install backend dependencies
       run: |
-        cd back-end
+        cd back-and
         composer install
         cp .env.example .env
         php artisan key:generate
 
     - name: Migrate DB
       run: |
-        cd back-end
+        cd back-and
         php artisan migrate --force
 
     - name: Run laravel test
       run: |
-        cd back-end
+        cd back-and
         php artisan test
 
     - name: Setup Node
