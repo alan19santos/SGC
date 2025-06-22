@@ -7,7 +7,7 @@ on:
     branches: [ feature/trabalhando-pipeline ]
 
 
-join:
+jobs:
   build-and-test:
     runs-on: ubuntu-latest
 
