@@ -39,7 +39,7 @@ jobs:
     - name: Install backend dependencies
       run: |
         composer install
-        cp .env.example .env
+        cp .env.exemple .env
         php artisan key:generate
 
     - name: Migrate DB
@@ -55,8 +55,4 @@ jobs:
       with:
         node-version: '18'
 
-    - name: build fronted
-      run: |
-        cd front-end
-        npm Install
-        npm run build
+
