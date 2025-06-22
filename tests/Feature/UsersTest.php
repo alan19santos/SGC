@@ -49,7 +49,7 @@ class UsersTest extends TestCase {
         $user = $this->userData();
         $response = $this->postJson('/api/user', $user, ['Authorization' => 'Bearer ' . $this->token]);
         $response->assertCreated()
-            ->assertJson(fn(AssertableJson $json) => $json->whereAll(['message' => 'Registro criado com sucesso']));
+            ->assertJson(fn(AssertableJson $json) => $json->whereAll(['message' => 'Registro criado com sucesso.']));
 
     }
     public function tearDown(): void
