@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-
-class Condominium extends Model
+use OwenIt\Auditing\Contracts\Auditable;
+class Condominium extends Model implements Auditable
 {
     use HasFactory;
+    use \OwenIt\Auditing\Auditable;
 
     protected $table = 'condominium';
     protected $fillable = ['name','address','city','qtd_tower','qtd_ap'];
