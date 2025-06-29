@@ -50,6 +50,9 @@ jobs:
       run: |
         php artisan test
 
+    - name: Run PHPStan (análise estática)
+      run: php vendor/phpstan/phpstan/phpstan analyse app --memory-limit=512M
+
     - name: Setup Node
       uses: actions/setup-node@v3
       with:

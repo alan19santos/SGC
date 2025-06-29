@@ -14,10 +14,11 @@
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",
-        "laravel/pint": "^1.0",
+        "laravel/pint": "*",
         "laravel/sail": "^1.18",
         "mockery/mockery": "^1.4.4",
         "nunomaduro/collision": "^7.0",
+        "phpstan/phpstan": "*",
         "phpunit/phpunit": "^10.5",
         "spatie/laravel-ignition": "^2.0"
     },
@@ -30,7 +31,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "Tests\\": "tests/",
+            "PHPStan\\": "vendor/phpstan/phpstan/src/"
         }
     },
     "scripts": {
