@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use \Illuminate\Database\Eloquent\Relations\BelongsTo;
-use \Illuminate\Database\Eloquent\Relations\hasMany;
 use Illuminate\Database\Eloquent\Model;
 
 class SpaceReservation extends Model
@@ -25,5 +24,5 @@ class SpaceReservation extends Model
         return $this->belongsTo(TypeReserved::class, 'type_reserved_id', 'id');
     }
 
-    
+
 }

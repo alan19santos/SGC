@@ -51,3 +51,7 @@ Rodando o Docker:
 - php artisan db:seed --class=UserAdmSeeder
 - php artisan db:seed --class=ProfileSeeder
 - php artisan db:seed --class=UserProfileSeeder
+
+
+# PhpStan (Analise de código)
+- php vendor/phpstan/phpstan/phpstan analyse app --memory-limit=512M

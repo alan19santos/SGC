@@ -1,0 +1,61 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ feature/trabalhando-pipline ]
+  pull_request:
+    branches: [ feature/trabalhando-pipline ]
+
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: sgc
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: '123456'
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: '8.3'
+        extensions: mbstring, bcmath, pdo, pdo_pgsql
+        tools: composer
+
+    - name: Install backend dependencies
+      run: |
+        composer install
+        cp .env.exemple .env
+        php artisan key:generate
+
+    - name: Migrate DB
+      run: |
+        php artisan migrate --force
+
+    - name: Run laravel test
+      run: |
+        php artisan test
+
+    - name: Run PHPStan (análise estática)
+      run: php vendor/phpstan/phpstan/phpstan analyse app --memory-limit=512M
+
+    - name: Setup Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+
+
