@@ -5,15 +5,15 @@ use App\Exceptions\CredentialsException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\DB;
-use App\Repositories\Core\BaseRepository;   
-use App\models\TypeReserved;
+use App\Repositories\Core\BaseRepository;
+use App\Models\TypeReserved;
 use App\Models\SpaceReservation;
 
 
 class SpaceReservationRepository extends BaseRepository {
 
     public function __construct(private SpaceReservation $entity) {
-        parent::__construct($entity);    
+        parent::__construct($entity);
     }
     function getEntity(){}
     /**
@@ -21,7 +21,7 @@ class SpaceReservationRepository extends BaseRepository {
      * @param int $perPage
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function paginate(int $perPage = 10): LengthAwarePaginator { 
+    public function paginate(int $perPage = 10): LengthAwarePaginator {
         return $this->loadRelationships( $this->entity, ['type','user'])->paginate($perPage);
     }
 
@@ -69,13 +69,13 @@ class SpaceReservationRepository extends BaseRepository {
     }
 
     private function loadRelationships($query, $relationships = [])
-    {        
+    {
         return $query->with(
             $relationships
         );
     }
 
-   
+
 
     /**
      * Summary of applyFilter
@@ -97,7 +97,7 @@ class SpaceReservationRepository extends BaseRepository {
                     if ($key == 'type_reserved_id') {
                         $relationship->where("space_reservation.type_reserved_id","=", $value);
                     }
-                   
+
                 }
             }
         }
@@ -113,7 +113,7 @@ class SpaceReservationRepository extends BaseRepository {
      * @return void
      */
     public function isValidade(object $object, array $value): void {
-      
+
         try {
             DB::beginTransaction();
             $object->update($value);
@@ -124,7 +124,7 @@ class SpaceReservationRepository extends BaseRepository {
         }
     }
 
-    
 
-    
+
+
 }
