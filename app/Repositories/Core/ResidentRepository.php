@@ -116,6 +116,7 @@ class ResidentRepository extends BaseRepository
             DB::commit();
         } catch (\Exception $th) {
             DB::rollback();
+            Log::debug("Erro ao inserir dados", [$th->getMessage()]);
             throw new CredentialsException($th->getMessage());
         }
     }
