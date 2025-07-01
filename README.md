@@ -34,11 +34,11 @@ Comandos PHPUnit Exemplos:
   - php artisan make:test UserTest --unit
 
 - Criação de migrations
- # Rodar migrate especifica
+# Rodar migrate especifica
 - php artisan migrate --path=/database/migrations/selected/
 
 
-Rodando o Docker:
+# Rodando o Docker:
 - docker-compose up -d --build
 - docker exec -it sgc bash
 
