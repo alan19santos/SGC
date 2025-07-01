@@ -27,7 +27,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::post('/login', [AuthController::class, 'login']);
-
+Route::get('/teste-telescope', function () {
+    return app()->providerIsLoaded(Laravel\Telescope\TelescopeServiceProvider::class) ? 'Provider ativo' : 'Provider INATIVO';
+});
 
 Route::middleware('auth:sanctum')->group(function () {
 
@@ -90,7 +92,7 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
 
-    Route::prefix('reserved')->group(function () { 
+    Route::prefix('reserved')->group(function () {
         Route::get('/getTypeReserved', [SpaceReservationController::class, 'typeReserved']);
         Route::post('', [SpaceReservationController::class, 'store']);
         Route::get('', [SpaceReservationController::class, 'index']);
@@ -109,8 +111,8 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{id}', [OccurrenceController::class,'update']);
         Route::delete('', [OccurrenceController::class,'delete']);
     });
-   
-    
+
+
 
     Route::prefix('status')->group(function () {
         Route::get('', [StatusController::class, 'index']);
@@ -126,5 +128,5 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/filterSlug', [ProfileController::class, 'filterSlug']);
     });
 
-    
+
 });
