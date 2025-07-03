@@ -41,6 +41,7 @@ Comandos PHPUnit Exemplos:
 # Rodando o Docker:
 - docker-compose up -d --build
 - docker exec -it sgc bash
+- docker compose down
 
 # Rodar as migrate no servidor
 - composer install

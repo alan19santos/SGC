@@ -84,7 +84,7 @@ class ResidentRepository extends BaseRepository
      */
     public function store(array $data): void
     {
-
+        Log::info('Entrou aqui');
         try {
             DB::beginTransaction();
 
@@ -98,9 +98,9 @@ class ResidentRepository extends BaseRepository
 
             $data['resident']['user_id'] = $usu->id;
             $data['resident']['profile_id'] = $profile;
-
+            Log::debug('dados resident', [$data]);
              # Apartamento do morador
-             if (isset($data['apartmant'])) {
+             if (isset($data['apartment'])) {
                 $data['resident']['apartment_id'] = $this->createApartmant($data);
             }
             Log::debug('dados resident', [$data]);
@@ -116,7 +116,7 @@ class ResidentRepository extends BaseRepository
             DB::commit();
         } catch (\Exception $th) {
             DB::rollback();
-            Log::debug("Erro ao inserir dados", [$th->getMessage()]);
+            Log::error("Erro ao inserir dados", [$th->getMessage()]);
             throw new CredentialsException($th->getMessage());
         }
     }
@@ -131,10 +131,10 @@ class ResidentRepository extends BaseRepository
     {
         $data = ['tower_id'=> $apartmant['resident']['tower_id'],
                 'condominium_id'=> $apartmant['resident']['condominium_id'],
-                'name'=> $apartmant['apartmant']['name']];
+                'name'=> $apartmant['apartment']['name']];
                 Log::debug('apartamento', [$data]);
        Apartment::updateOrCreate($data);
-        $apartmants = Apartment::where('name','=', $apartmant['apartmant']['name'])->where('tower_id','=',$apartmant['resident']['tower_id'])->first();
+        $apartmants = Apartment::where('name','=', $apartmant['apartment']['name'])->where('tower_id','=',$apartmant['resident']['tower_id'])->first();
         return $apartmants->id;
     }
 
