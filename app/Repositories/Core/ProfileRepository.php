@@ -33,7 +33,12 @@ class ProfileRepository extends BaseRepository {
 
 
     public function filterSlug(string $slug) {
-        return $this->profile->where('slug', $slug)->first();
+        return $this->profile->where('slug', '=',$slug)->first();
+    }
+
+
+    public function filterSlugId(int $id) {
+        return $this->profile->where('id','=', $id)->first();
     }
 
 

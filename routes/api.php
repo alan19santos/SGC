@@ -126,6 +126,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('profile')->group(function () {
         Route::get('', [ProfileController::class, 'index']);
         Route::get('/filterSlug', [ProfileController::class, 'filterSlug']);
+        Route::get('/filterSlugId', [ProfileController::class, 'filterSlugId']);
     });
 
 

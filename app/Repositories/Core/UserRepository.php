@@ -21,11 +21,21 @@ class UserRepository extends BaseRepository
 
     function getEntity() {}
 
+    /**
+     * Summary of getAll
+     * @return Collection<int, TModel>|\Illuminate\Database\Eloquent\Builder[]|\Illuminate\Support\Collection<int, \stdClass>
+     */
     public function getAll(): Collection
     {
         return $this->user->withTrashed()->get();
     }
 
+    /**
+     * Summary of store
+     * @param array $data
+     * @throws \App\Exceptions\UserException
+     * @return void
+     */
     public function store(array $data): void
     {
         try {
@@ -41,6 +51,11 @@ class UserRepository extends BaseRepository
         }
     }
 
+    /**
+     * Summary of findById
+     * @param int $id
+     * @return object
+     */
     public function findById(int $id): object
     {
         return $this->relationship($this->user)
@@ -48,6 +63,10 @@ class UserRepository extends BaseRepository
             ->findOrFail($id);
     }
 
+    /**
+     * Summary of findByEmail
+     * @param string $email
+     */
     public function findByEmail(string $email)
     {
         return $this->relationship($this->user)
@@ -56,6 +75,12 @@ class UserRepository extends BaseRepository
             ->first();
     }
 
+    /**
+     * Summary of findWhereFirst
+     * @param string $column
+     * @param string $value
+     * @return object|\Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Eloquent\Model|\Illuminate\Database\Query\Builder|null
+     */
     public function findWhereFirst(string $column, string $value)
     {
         return $this->user
@@ -64,12 +89,23 @@ class UserRepository extends BaseRepository
             ->first();
     }
 
+    /**
+     * Summary of updatePassword
+     * @param string $email
+     * @param string $password
+     * @return void
+     */
     public function updatePassword(string $email, string $password): void
     {
         $this->user::where('email', $email)
             ->update(['password' => Hash::make($password)]);
     }
 
+    /**
+     * Summary of paginate
+     * @param int $totalPage
+     * @return LengthAwarePaginator|\Illuminate\Contracts\Pagination\LengthAwarePaginator
+     */
     public function paginate(int $totalPage): LengthAwarePaginator
     {
         return  $this->user->withTrashed()
@@ -77,13 +113,25 @@ class UserRepository extends BaseRepository
             ->paginate($totalPage);
     }
 
-    public function getProfileUser($profileId) {      
-       
-        // $profile = UserProfile::where('user_id', $userId)->first();
-        return Profile::where('id', $profileId)->first();
+    /**
+     * Summary of getProfileUser
+     * @param mixed $profileId
+     * @return object|Profile|\Illuminate\Database\Eloquent\Model|null
+     */
+    public function getProfileUser($userId) {
+
+        // $user = $this->user->where('id', $userId)->first();
+        $user = UserProfile::where('user_id','=', $userId)->first();
+        if ($user) {
+            return Profile::where('id', '=',$user->profile_id)->first();
+        }
 
     }
 
+    /**
+     * Summary of applyFilter
+     * @param array $items
+     */
     public function applyFilter(array $items)
     {
         $relationship = $this->user;
@@ -106,6 +154,10 @@ class UserRepository extends BaseRepository
     }
 
 
+    /**
+     * Summary of relationship
+     * @param mixed $entity
+     */
     private function relationship($entity) {
 
         return $entity;

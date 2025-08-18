@@ -15,7 +15,7 @@ return new class extends Migration
         Schema::table('resident', function (Blueprint $table) {
 
             $table->foreign('status_id')->references('id')->on('status');
-             $table->foreignId('apartment_id')->constrained('apartment')->nullable();
+            $table->foreignId('apartment_id')->constrained('apartment')->nullable();
             $table->foreignId('tower_id')->constrained('tower')->nullable();
             $table->foreignId('condominium_id')->constrained('condominium')->nullable();
 

@@ -13,9 +13,10 @@ return new class extends Migration
     {
         //
         Schema::table('resident', function (Blueprint $table) {
-            $table->integer('status_id')->nullable();
+            $table->unsignedBigInteger('status_id')->nullable();
+            // $table->integer('status_id')->nullable();
             // $table->foreignId('status_id')->constrained('status');
-           
+
         });
     }
 

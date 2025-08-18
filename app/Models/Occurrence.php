@@ -10,7 +10,7 @@ class Occurrence extends Model
     use HasFactory;
 
     protected $table = 'occurrence';
-    protected $fillable = ['date_occurrence','observation','title','user_id','type_occurrence_id','isResolved','resolution'];
+    protected $fillable = ['date_occurrence','observation','title','user_id','type_occurrence_id','isResolved','resolution', 'updated_at','created_at'];
 
 
     public function user() {

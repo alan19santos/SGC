@@ -13,8 +13,12 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 class OccurrentRepository extends BaseRepository {
 
-  
 
+
+    /**
+     * Summary of __construct
+     * @param \App\Models\Occurrence $occurrence
+     */
     public function __construct(private Occurrence $occurrence){
             parent::__construct($occurrence);
     }
@@ -57,6 +61,10 @@ class OccurrentRepository extends BaseRepository {
     }
 
 
+    /**
+     * Summary of applyFilter
+     * @param array $items
+     */
     public function applyFilter(array $items)
     {
         $relationship = $this->loadRelationships($this->occurrence, ['user']);
@@ -85,7 +93,7 @@ class OccurrentRepository extends BaseRepository {
 
 
     private function loadRelationships($query, $relationships = [])
-    {        
+    {
         return $query->with(
             $relationships
         );
@@ -107,22 +115,22 @@ class OccurrentRepository extends BaseRepository {
         $data = ['observations' => $array['data']['observations'], 'occurrence_id' => $array['data']['id']];
         $occurrence = $this->occurrence->where('id', $array['data']['id'])->first();
         DB::beginTransaction();
-        try {           
+        try {
             HistoricOccurrence::create($data);
 
             $occurrence->isResolved = true;
             $occurrence->save();
 
             DB::commit();
-         
+
         } catch (\Exception $ex) {
-          
+
             DB::rollBack();
             Log::error('Erro ao inserir histórico: ', [$ex->getMessage()]);
-          
+
         }
 
-        
+
     }
 
 }

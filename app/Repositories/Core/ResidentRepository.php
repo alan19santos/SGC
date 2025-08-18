@@ -49,6 +49,11 @@ class ResidentRepository extends BaseRepository
         return $this->relationship($this->resident, ['drive', 'animals', 'employee','user', 'condominium','apartment'])->findOrFail($id);
     }
 
+    /**
+     * Summary of formatNumber
+     * @param string $number
+     * @return array|string|null
+     */
     public function formatNumber(string $number) {
         $number = preg_replace('/[^0-9]/', '', $number);
         return $number;
@@ -82,33 +87,35 @@ class ResidentRepository extends BaseRepository
      *
      * Cadastrar dados que devem ser passados, profile, status, animais, torre/ap, condominio, empregada
      */
-    public function store(array $data): void
+    public function store(array $data)
     {
-        Log::info('Entrou aqui');
+
         try {
             DB::beginTransaction();
 
             $profile = isset($data['profile_id']) ? $data['profile_id'] : $this->profile()->id;
 
-            $user = ['name' => $data['resident']['name'], 'email' => $data['resident']['email'], 'profile_id' => $profile, 'password' => Hash::make('123456')];
+            $password =  (isset($data['password']) ? $data['password'] : '123456');
+            $user = ['name' => $data['resident']['name'], 'email' => $data['resident']['email'], 'profile_id' => $profile, 'password' => Hash::make($password)];
 
             $usu = $this->modalUser->create($user);
 
+            $user['password'] = $password;
             $this->userProfile($usu->id, $profile);
 
             $data['resident']['user_id'] = $usu->id;
             $data['resident']['profile_id'] = $profile;
-            Log::debug('dados resident', [$data]);
+
              # Apartamento do morador
              if (isset($data['apartment'])) {
                 $data['resident']['apartment_id'] = $this->createApartmant($data);
             }
-            Log::debug('dados resident', [$data]);
+
             $resident = $this->resident->create($data['resident']);
 
             $data['resident_id'] = $resident->id;
 
-            // log::debug('dados', [$data]);
+
             $this->createAssociate( $data);
 
             $this->sendMail( $user, 'Confirmação de cadastro:  Sistema SGC');
@@ -132,7 +139,7 @@ class ResidentRepository extends BaseRepository
         $data = ['tower_id'=> $apartmant['resident']['tower_id'],
                 'condominium_id'=> $apartmant['resident']['condominium_id'],
                 'name'=> $apartmant['apartment']['name']];
-                Log::debug('apartamento', [$data]);
+
        Apartment::updateOrCreate($data);
         $apartmants = Apartment::where('name','=', $apartmant['apartment']['name'])->where('tower_id','=',$apartmant['resident']['tower_id'])->first();
         return $apartmants->id;

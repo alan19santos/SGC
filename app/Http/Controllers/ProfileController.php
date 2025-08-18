@@ -13,9 +13,13 @@ class ProfileController extends CrudController
     {
         $this->service = $service;
         parent::__construct($service);
-        
+
     }
     public function filterSlug(string $slug) {
         $this->service->filterSlug($slug);
+    }
+
+    public function filterSlugId(int $id) {
+        $this->service->filterSlugId($id);
     }
 }

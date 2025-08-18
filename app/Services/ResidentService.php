@@ -25,14 +25,19 @@ class ResidentService {
         return $this->repository->findById($id);
     }
 
-    public function paginate(int $id): LengthAwarePaginator {
+    public function paginate(int $id) {
         return $this->repository->paginate($id);
     }
 
+    /**
+     * Summary of store
+     * @param array $data
+     * @return array{message: string, success: bool}
+     */
     public function store(array $data) {
 
         $email = $data['resident']['email'];
-
+        // Log::debug('dados do resident',[$data]);
         $user = $this->repository->getUserByEmail($email);
         $data['resident']['cpf'] = $this->repository->formatNumber($data['resident']['cpf']);
 
@@ -48,13 +53,22 @@ class ResidentService {
             $data['resident']['phone'] = $this->repository->formatNumber($data['resident']['phone']);
         }
 
+        $data['password'] = $this->random_password(10, 'upper');
+
         if ($user) {
             return ['success' => false, 'message' => 'Já existe email cadastrado!'];
         }
-        
+
         $this->repository->store($data);
+        return ['success' => true, 'message' => 'Cadastrado com sucesso!'];
     }
 
+    /**
+     * Summary of upload
+     * @param mixed $image
+     * @param mixed $id
+     * @return JsonResponse|mixed
+     */
     public function upload($image, $id = null) {
 
         $imageName = ($id ? $id : Str::uuid()) . '_image';
@@ -67,10 +81,17 @@ class ResidentService {
         ]);
     }
 
-    public function update(array $data, $id) {      
-       
-        $data['resident']['cpf'] = $this->repository->formatNumber($data['resident']['cpf']);
 
+    /**
+     * Summary of update
+     * @param array $data
+     * @param mixed $id
+     * @return JsonResponse|mixed
+     */
+    public function update(array $data, $id) {
+
+        $data['resident']['cpf'] = $this->repository->formatNumber($data['resident']['cpf']);
+        // Log::debug('dados do resident',[$data]);
         if (isset( $data['employer']['cpf'])) {
             $data['employer']['cpf'] = $this->repository->formatNumber($data['employer']['cpf']);
         }
@@ -86,13 +107,13 @@ class ResidentService {
 
         $email = $data['resident']['email'];
         $user = $this->repository->getUserByEmail($email);
-        $userId = $this->repository->getUserById($user->id);        
-        
+        $userId = $this->repository->getUserById($user->id);
+
 
         $model = $this->findById($id);
 
         if ($model->user->id !== $userId->id) {
-            
+
             return response()->json(['success' => false, 'message' => 'Já existe email cadastrado!']);
         }
 
@@ -111,30 +132,36 @@ class ResidentService {
         $this->repository->restore($id);
     }
 
+    /**
+     * Summary of updateImage
+     * @param mixed $request
+     * @param mixed $id
+     * @return JsonResponse|mixed
+     */
     public function updateImage($request, $id)
     {
-            Log::debug('Request all', [$request->all()]);     
-            Log::debug('Request file', [$request->all()]);     
-          
-        if ($request->hasFile('image')) 
-        {           
+            // Log::debug('Request all', [$request->all()]);
+            // Log::debug('Request file', [$request->all()]);
+
+        if ($request->hasFile('image'))
+        {
             $image = $request->file('image');
             $nameImage = $id.'.'.$image->getClientOriginalExtension();
-           
+
             if (file_exists(env('UPLOAD_IMAGE').$nameImage)) {
                 unlink(env('UPLOAD_IMAGE').$nameImage);
             }
-            Log::info('imagem: '.$nameImage);
+            // Log::info('imagem: '.$nameImage);
             $image->storeAs('public/uploads', $nameImage);
-            
+
             // Retornar o caminho acessível ao navegador
             $publicPath = asset('storage/uploads/' . $nameImage);
-            Log::debug('depois de deletar: '.file_exists(''.$publicPath));
+            // Log::debug('depois de deletar: '.file_exists(''.$publicPath));
             $data['resident']['url_image'] = $publicPath;
             $model = $this->findById($id);
-            Log::debug('id do morador: '.$model->id);
+            // Log::debug('id do morador: '.$model->id);
             $this->repository->update($model, $data);
-            Log::info('Após atualizar');
+            // Log::info('Após atualizar');
             return response()->json(['path' => $publicPath,'status' =>  true], 201);
 
         } else {
@@ -143,7 +170,29 @@ class ResidentService {
 
         }
     }
-   
 
-    
+
+    /**
+     * Summary of random_password
+     * @param int $length
+     * @param string $case
+     * @return string
+     */
+    public function random_password(int $length, string $case = 'both') {
+
+        $alphabets = [
+            'lower'=>'abcdefghijklmnopqrstuvwxyz',
+            'upper' => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+            'both'  => 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        ];
+        $pool = $alphabets[$case] ?? $alphabets['both'];
+
+        $out = '';
+        $max = strlen($pool) - 1;
+        for ($i = 0; $i < $length; $i++) {
+            $out .= $pool[random_int(0, $max)];
+        }
+        return $out;
+    }
+
 }
