@@ -13,4 +13,6 @@ class DriveResident extends Model
     protected $table = 'drive_resident';
     protected $fillable = ['resident_id','drive_id'];
 
+
+
 }

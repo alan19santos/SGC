@@ -17,7 +17,7 @@ class DriveRepository extends  BaseRepository {
     }
 
     function getEntity() {}
-    
+
     public function getAll(): Collection
     {
         return $this->relationship($this->drive, ['resident'])->get();
@@ -52,7 +52,7 @@ class DriveRepository extends  BaseRepository {
                     if ($key == 'color') {
                         $relationship->whereRaw("UPPER(drive.color) like UPPER('%{$value}%')");
                     }
-                    
+
                 }
             }
         }
