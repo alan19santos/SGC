@@ -87,7 +87,7 @@ class ResidentRepository extends BaseRepository
      *
      * Cadastrar dados que devem ser passados, profile, status, animais, torre/ap, condominio, empregada
      */
-    public function store(array $data)
+    public function store(array $data): void
     {
 
         try {

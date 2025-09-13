@@ -60,14 +60,14 @@ class UserService implements UserInterface
         }
 
         $data['password'] = (isset($data['password']) ? $data['password'] : Str::random(10));
-        $this->userRepository->store($data); 
-        
+        $this->userRepository->store($data);
+
         $user = $this->findByEmail($data['email']);
       Log::info($user);
         if ($user) {
             $this->sendMail( $data, 'Confirmação de cadastro:  Sistema SGC');
         }
-        
+
     }
 
     public function update(array $data, int $id): void
