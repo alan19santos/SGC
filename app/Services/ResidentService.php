@@ -10,21 +10,43 @@ use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 
+/**
+ * Summary of ResidentService
+ */
 class ResidentService {
     private $repository;
+
+    /**
+     * Summary of __construct
+     * @param \App\Repositories\Core\ResidentRepository $repository
+     */
     public function __construct(ResidentRepository $repository)
     {
         $this->repository = $repository;
     }
 
+    /**
+     * Summary of getAll
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
     public function getAll() {
         return $this->repository->getAll();
     }
 
+    /**
+     * Summary of findById
+     * @param mixed $id
+     * @return object
+     */
     public function findById($id) {
         return $this->repository->findById($id);
     }
 
+    /**
+     * Summary of paginate
+     * @param int $id
+     * @return LengthAwarePaginator
+     */
     public function paginate(int $id) {
         return $this->repository->paginate($id);
     }
@@ -120,6 +142,11 @@ class ResidentService {
         return $this->repository->update($model, $data);
     }
 
+    /**
+     * Summary of destroy
+     * @param int $id
+     * @return void
+     */
     public function destroy(int $id): void
     {
         $model = $this->findById($id);
@@ -127,6 +154,11 @@ class ResidentService {
 
     }
 
+    /**
+     * Summary of restore
+     * @param int $id
+     * @return void
+     */
     public function restore(int $id): void
     {
         $this->repository->restore($id);
