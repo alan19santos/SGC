@@ -44,7 +44,7 @@ class OccurrentRepository extends BaseRepository {
      */
     public function findById($id): object {
 
-        return $this->loadRelationships($this->occurrence, ['user','typeOccurrence'])->where('user_id', $id)->get();
+        return $this->loadRelationships($this->occurrence, ['user','typeOccurrence'])->where('id', $id)->first();
     }
 
     /**
@@ -85,6 +85,27 @@ class OccurrentRepository extends BaseRepository {
             throw new CredentialsException($th->getMessage());
         }
     }
+
+
+    /**
+     * Summary of update
+     * @param object $entity
+     * @param array $data
+     * @throws \App\Exceptions\CredentialsException
+     * @return void
+     */
+    public function update(object $entity, array $data): void
+    {
+        try {
+            DB::beginTransaction();
+            $entity->update($data);
+            DB::commit();
+        } catch (\Throwable $th) {
+            DB::rollback();
+            throw new CredentialsException($th->getMessage());
+        }
+    }
+
 
 
     /**
