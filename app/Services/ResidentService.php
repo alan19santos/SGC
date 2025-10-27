@@ -2,6 +2,7 @@
 
 namespace App\Services;
 use App\Repositories\Core\ResidentRepository;
+use App\Services\PeoplesServices;
 use GuzzleHttp\Psr7\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
@@ -15,14 +16,15 @@ use Illuminate\Support\Str;
  */
 class ResidentService {
     private $repository;
-
+    private $peopleService;
     /**
      * Summary of __construct
      * @param \App\Repositories\Core\ResidentRepository $repository
      */
-    public function __construct(ResidentRepository $repository)
+    public function __construct(ResidentRepository $repository, PeoplesServices $peopleService)
     {
         $this->repository = $repository;
+        $this->peopleService = $peopleService;
     }
 
     /**
@@ -225,6 +227,11 @@ class ResidentService {
             $out .= $pool[random_int(0, $max)];
         }
         return $out;
+    }
+
+    public function getPeopleCpf(string $cpf) {
+
+        return $this->peopleService->getPeopleCpf($cpf);
     }
 
 }

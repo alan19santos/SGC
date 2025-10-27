@@ -17,4 +17,8 @@ class Drive extends Model implements Auditable
     public function resident() {
         return $this->belongsToMany(Resident::class, 'drive_resident', 'drive_id', 'resident_id');
     }
+
+    public function people() {
+        return $this->belongsToMany(Peoples::class, 'drive_people', 'drive_id', 'people_id');
+    }
 }

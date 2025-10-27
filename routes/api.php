@@ -13,6 +13,7 @@ use App\Http\Controllers\VisitorsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SpaceReservationController;
 use App\Http\Controllers\OccurrenceController;
+use App\Http\Controllers\PeoplesController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -49,6 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/{id}', [ResidentController::class, 'show']);
         Route::post('/update-image/{id}', [ResidentController::class, 'updateImage']);
         Route::get('/getImageUsers/{id}', [ResidentController::class, 'getImageUsers']);
+        Route::get('/getPeopleCpf/{cpf}', [ResidentController::class, 'getPeopleCpf']);
 
     });
 
@@ -127,6 +129,16 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('', [ProfileController::class, 'index']);
         Route::get('/filterSlug', [ProfileController::class, 'filterSlug']);
         Route::get('/filterSlugId', [ProfileController::class, 'filterSlugId']);
+    });
+
+    Route::prefix('people')->group(function() {
+        Route::post('', [PeoplesController::class, 'store']);
+        Route::post('/storeFormData', [PeoplesController::class, 'storeFormData']);
+        Route::get('', [PeoplesController::class, 'index']);
+        Route::put('/updateFormData/{id}', [PeoplesController::class, 'updateFormData']);
+        Route::put('/{id}', [PeoplesController::class, 'update']);
+        Route::get('/{id}', [PeoplesController::class, 'show']);
+        Route::get('/getPeopleCpf', [PeoplesController::class, 'getPeopleCpf']);
     });
 
 

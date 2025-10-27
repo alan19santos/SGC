@@ -15,7 +15,7 @@ class ResidentController extends CrudController
     //
     private $service;
 
-    public function __construct(ResidentService $service) 
+    public function __construct(ResidentService $service)
     {
         $this->service = $service;
         parent::__construct($service);
@@ -29,7 +29,7 @@ class ResidentController extends CrudController
 
     protected function beforeUpdate(StoreUpdateResidentFormRequest $request, int $id): JsonResponse
     {
-        $request->validated();        
+        $request->validated();
         return $this->service->update($request->all(), $id);
     }
 
@@ -44,8 +44,12 @@ class ResidentController extends CrudController
         return $this->service->updateImage($request, $id);
     }
 
+    public function getPeopleCpf(string $cpf) {
+        return $this->service->getPeopleCpf($cpf);
+    }
+
     public function getImageUsers($id) {
-        
+
         $find = $this->service->findById($id);
         // $url =  "storage/uploads/{$id}.png";
         $url =  $find->url_image;
