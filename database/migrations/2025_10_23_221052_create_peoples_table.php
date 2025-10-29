@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('rg');
             $table->string('email');
             $table->date('date_birth');
+            $table->string('photo')->nullable();
             $table->timestamps();
         });
     }

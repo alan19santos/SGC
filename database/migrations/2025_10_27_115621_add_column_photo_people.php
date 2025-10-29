@@ -8,6 +8,7 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
+     * pode deletar essa migrate, ela já consta na tabela
      */
     public function up(): void
     {

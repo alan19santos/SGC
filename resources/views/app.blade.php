@@ -5,8 +5,8 @@
     <link rel="icon" type="image/svg+xml" href="./vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Sistema</title>
-    <script type="module" crossorigin src="./assets/index-CI0mBqB6.js"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-BTBxb3Fk.css">
+    <script type="module" crossorigin src="./assets/index-XidJgWo6.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-jIoOVbjR.css">
   </head>
   <body>
     <div id="app"></div>
