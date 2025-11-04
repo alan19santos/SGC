@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use App\Repositories\Core\BaseRepository;
 use App\Models\TypeReserved;
 use App\Models\SpaceReservation;
+use App\Models\StatusReserve;
 
 
 class SpaceReservationRepository extends BaseRepository {
@@ -22,7 +23,12 @@ class SpaceReservationRepository extends BaseRepository {
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function paginate(int $perPage = 10): LengthAwarePaginator {
-        return $this->loadRelationships( $this->entity, ['type','user'])->paginate($perPage);
+        return $this->loadRelationships( $this->entity, ['type','user', 'status'])->paginate($perPage);
+    }
+
+    public function statusReserve(string $slug) {
+
+        return StatusReserve::where('slug','=', $slug)->first();
     }
 
     /**
@@ -31,7 +37,7 @@ class SpaceReservationRepository extends BaseRepository {
      */
     public function getAll(): Collection  {
 
-        return $this->loadRelationships( $this->entity, ['type','user'] )->get();
+        return $this->loadRelationships( $this->entity, ['type','user' ,'status'] )->get();
     }
 
     /**
@@ -40,8 +46,9 @@ class SpaceReservationRepository extends BaseRepository {
      * @return object
      */
     public function findById(int $id): object {
-        return $this->loadRelationships( $this->entity, ['type','user'] )->where('user_id', $id)->get();
+        return $this->loadRelationships( $this->entity, ['type','user', 'status'] )->where('user_id', $id)->first();
     }
+
 
     /**
      * Summary of store
@@ -75,7 +82,24 @@ class SpaceReservationRepository extends BaseRepository {
         );
     }
 
+    public function validStatus(object $entity, array $value) {
 
+        try {
+            DB::beginTransaction();
+            // Log::debug('isValidade', [$entity]);
+            $entity->status_reserve_id = $value['status_reserve_id'];
+            $entity->save();
+            DB::commit();
+            return ['status'=>true];
+        } catch (\Exception $ex) {
+            DB::rollBack();
+            throw new \Exception($ex->getMessage());
+        }
+    }
+
+    public function getStatus() {
+        return StatusReserve::whereIn('slug', ['ativo','inativo'])->get();
+    }
 
     /**
      * Summary of applyFilter
@@ -83,7 +107,7 @@ class SpaceReservationRepository extends BaseRepository {
      */
     public function applyFilter(array $items)
     {
-        $relationship = $this->loadRelationships($this->entity, ['type','user']);
+        $relationship = $this->loadRelationships($this->entity, ['type','user','status']);
 
         foreach ($items as $key => $value) {
             if ($value) {
@@ -112,11 +136,12 @@ class SpaceReservationRepository extends BaseRepository {
      * @throws \Exception
      * @return void
      */
-    public function isValidade(object $object, array $value): void {
+    public function isValidade(object $entity, array $value): void {
 
         try {
             DB::beginTransaction();
-            $object->update($value);
+            Log::debug('isValidade', [$entity]);
+            $entity->update($value);
             DB::commit();
         } catch (\Exception $ex) {
             DB::rollBack();

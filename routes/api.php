@@ -99,8 +99,10 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('', [SpaceReservationController::class, 'store']);
         Route::get('', [SpaceReservationController::class, 'index']);
         Route::put('/{id}', [SpaceReservationController::class, 'update']);
+        Route::post('/validStatusReserved', [SpaceReservationController::class, 'validStatus']);
+        Route::get('/status', [SpaceReservationController::class, 'getStatus']);
         Route::get('/{id}', [SpaceReservationController::class, 'show']);
-        Route::put('/isValidade/{id}', [SpaceReservationController::class,'isValidade']);
+        // Route::put('/isValidade/{id}', [SpaceReservationController::class,'isValidade']);
      });
 
 

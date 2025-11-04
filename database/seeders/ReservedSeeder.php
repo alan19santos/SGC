@@ -14,7 +14,7 @@ class ReservedSeeder extends Seeder
     public function run(): void
     {
         //
-        $data = 
+        $data =
         [
             ["name"=> "Salão de Festa", "description"=> ""],
             ["name"=> "Churrasqueira", "description" => ""],

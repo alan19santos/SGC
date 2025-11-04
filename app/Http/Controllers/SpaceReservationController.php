@@ -49,7 +49,17 @@ class SpaceReservationController extends CrudController
     public function isValidade(Request $request, int $id) {
         $this->service->isValidade($request->all(), $id);
     }
-    
+
+    public function validStatus(Request $request) {
+        \Log::warning($request->all());
+        $response = $this->service->validStatus($request->all());
+        return response()->json(['status' => $response['status']]);
+    }
+
+    public function getStatus() {
+        return $this->service->getStatus();
+    }
+
 
 
 }

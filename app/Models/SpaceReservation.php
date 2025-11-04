@@ -11,7 +11,7 @@ class SpaceReservation extends Model
     use HasFactory;
 
     protected $table = 'space_reservation';
-    protected $fillable = ['date_reserved','time','observation','user_id','type_reserved_id','is_validate'] ;
+    protected $fillable = ['date_reserved','time','observation','user_id','type_reserved_id','status_reserve_id'] ;
 
 
     public function user(): belongsTo
@@ -22,6 +22,11 @@ class SpaceReservation extends Model
 
     public function type(): BelongsTo {
         return $this->belongsTo(TypeReserved::class, 'type_reserved_id', 'id');
+    }
+
+
+    public function status(): BelongsTo {
+        return $this->belongsTo(StatusReserve::class, 'status_reserve_id', 'id');
     }
 
 

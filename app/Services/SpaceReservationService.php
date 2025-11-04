@@ -46,7 +46,14 @@ class SpaceReservationService {
         if ($reserved['total'] > 0) {
             return ['success'=> false, 'message'=>'Já existe uma reserva nesta data e hora!'];
         }
-        $this->repository->store($data);
+        $status = $this->repository->statusReserve($data['slug']);
+
+        $this->repository->store(['date_reserved'=> $data['date_reserved'],
+                                        'time'=> $data['time'],
+                                        'observation'=> $data['observation'],
+                                        'user_id'=> $data['user_id'],
+                                        'type_reserved_id'=> $data['type_reserved_id'],
+                                        'status_reserve_id' => $status->id]);
     }
 
     /**
@@ -66,7 +73,11 @@ class SpaceReservationService {
      */
     public function update(array $data, $id) {
         $model = $this->findById($id);
-        $this->repository->update($model, $data);
+        $this->repository->update($model, ['date_reserved'=> $data['date_reserved'],
+                                        'time'=> $data['time'],
+                                        'observation'=> $data['observation'],
+                                        'user_id'=> $data['user_id'],
+                                        'type_reserved_id'=> $data['type_reserved_id']]);
     }
 
     /**
@@ -100,12 +111,23 @@ class SpaceReservationService {
         return $this->repository->isValidade($model, $value);
     }
 
+
+    public function validStatus(array $value) {
+        $model = $this->findById($value['data']['id']);
+        \Log::info('Retorno da query', [$model]);
+        return $this->repository->validStatus($model, $value['data']);
+    }
+
     /**
      * Summary of typeReserved
      * @return \App\Models\TypeReserved[]|\Illuminate\Database\Eloquent\Collection
      */
     public function typeReserved() {
         return $this->repository->typeReserved();
+    }
+
+    public function getStatus() {
+        return $this->repository->getStatus();
     }
 }
 
