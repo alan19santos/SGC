@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Services\VisitorsService;
+use Composer\DependencyResolver\Request;
 use Illuminate\Http\JsonResponse;
 use App\Http\Request\StoreUpdateVisitorsFormRequest;
 
@@ -37,5 +38,9 @@ class VisitorsController extends CrudController
     public function getVisitorCondominium() {
         return $this->service->getVisitorCondominium();
     }
-   
+
+    public function getPeopleCpf(string $cpf) {
+        return $this->service->getPeopleCpf($cpf);
+    }
+
 }

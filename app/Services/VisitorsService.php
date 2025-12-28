@@ -2,13 +2,16 @@
 namespace App\Services;
 
 use App\Repositories\Core\VisitorsRepositories;
+use App\Services\PeoplesServices;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class VisitorsService {
-    
+
     private $repository;
-    public function __construct(VisitorsRepositories $repository) {
+    private $peopleService;
+    public function __construct(VisitorsRepositories $repository, PeoplesServices $peopleService) {
         $this->repository = $repository;
+        $this->peopleService = $peopleService;
     }
 
     public function getAll() {
@@ -40,6 +43,11 @@ class VisitorsService {
     public function restore(int $id): void
     {
         $this->repository->restore($id);
+    }
+
+    public function getPeopleCpf(string $cpf) {
+        return $this->peopleService->getPeopleCpf($cpf);
+
     }
 
     public function getVisitorCondominium(): void

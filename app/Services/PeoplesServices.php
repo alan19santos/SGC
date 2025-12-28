@@ -75,7 +75,7 @@ class PeoplesServices
      * @param int $id
      * @return void
      */
-    public function delete(int $id): void
+    public function destroy(int $id): void
     {
         $model = $this->findById($id);
         $model->delete();
@@ -94,6 +94,14 @@ class PeoplesServices
     public function storeFormData($request)
     {
         $data = $request->all();
+        // \Log::debug('dados do front', [$data]);
+        if (count($this->repository->getEmailPeople($data['people']['email'])) > 0) {
+            return response()->json(['success' => false, 'message' => 'Já existe esse EMAIL cadastrado!'], 400);
+        }
+
+        if ($this->repository->getPeopleCpf($data['people']['cpf'])) {
+            return response()->json(['success' => false, 'message' => 'Já existe esse CPF cadastrado!'], 400);
+        }
         try {
             if ($request->hasFile('photo')) {
                 $image = $request->file('photo');
@@ -107,9 +115,11 @@ class PeoplesServices
                 $publicPath = asset('storage/uploads/' . $nameImage);
                 $data['people']['photo'] = $publicPath;
                 $this->repository->storeFormData($data);
+                return response()->json(['success' => true, 'message' => 'Cadastrado com sucesso!'], 200);
             }
         } catch (\Exception $ex) {
             \Log::error('Erro ao salvar os dados:', [$ex->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Erro no cadastro de pessoa!'],500 );
         }
     }
 
@@ -117,6 +127,9 @@ class PeoplesServices
     public function updateFormData($request, $id) {
         $data = $request->all();
         $model = $this->findById($id);
+        if (!$model) {
+            return response()->json(['error' => false, 'message' => 'Erro ao atualizar pessoa!'],500 );
+        }
         try {
                 $image = $request->file('photo');
                 if (!empty($image)) {
@@ -131,9 +144,11 @@ class PeoplesServices
                     $data['people']['photo'] = $publicPath;
                 }
                 $this->repository->updateFormData($model, $data);
+                return response()->json(['success' => true, 'message' => 'Atualizado com sucesso!'], 200);
 
         } catch (\Exception $ex) {
             \Log::error('Erro ao salvar os dados:', [$ex->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Erro ao atualizar pessoa!'],500 );
         }
     }
 
@@ -144,6 +159,10 @@ class PeoplesServices
 
     public function getPeopleCpf($cpf) {
         return  $this->repository->getPeopleCpf($this->formatNumber($cpf));
+    }
+
+    public function getTypeAccount() {
+        return $this->repository->getTypeAccount();
     }
 
 

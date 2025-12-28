@@ -53,6 +53,43 @@ class ResidentService {
         return $this->repository->paginate($id);
     }
 
+     /**
+     * Summary of formatNumber
+     * @param string $number
+     * @return array|string|null
+     */
+    public function formatNumber(string $number) {
+        $number = preg_replace('/[^0-9]/', '', $number);
+        return $number;
+    }
+
+    public function storeFormData($request) {
+        $data = $request->all();
+
+        try {
+            if ($request->hasFile('url_image')) {
+                $image = $request->file('url_image');
+                $data['resident']['cpf'] = $this->formatNumber($data['resident']['cpf']);
+                $nameImage = $data['resident']['cpf'] . '.' . $image->getClientOriginalExtension();
+                if (file_exists(env('UPLOAD_IMAGE') . $nameImage)) {
+                    unlink(env('UPLOAD_IMAGE') . $nameImage);
+                }
+                $image->storeAs('public/uploads', $nameImage);
+                $publicPath = asset('storage/uploads/' . $nameImage);
+                $data['resident']['url_image'] = $publicPath;
+                return $this->store($data);
+            } else if (!empty($data['resident']['url_image'])) {
+               return $this->store($data);
+            } else {
+                return response()->json(['success' => false, 'message' => 'Erro no cadastro de pessoa, falha na imagem!'],500 );
+            }
+        } catch (\Exception $ex) {
+            \Log::error('Erro ao salvar os dados:', [$ex->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Erro no cadastro de pessoa!'],500 );
+        }
+
+    }
+
     /**
      * Summary of store
      * @param array $data
@@ -63,18 +100,18 @@ class ResidentService {
         $email = $data['resident']['email'];
         // Log::debug('dados do resident',[$data]);
         $user = $this->repository->getUserByEmail($email);
-        $data['resident']['cpf'] = $this->repository->formatNumber($data['resident']['cpf']);
+        $data['resident']['cpf'] = $this->formatNumber($data['resident']['cpf']);
 
         if (isset( $data['employer']['cpf'])) {
-            $data['employer']['cpf'] = $this->repository->formatNumber($data['employer']['cpf']);
+            $data['employer']['cpf'] = $this->formatNumber($data['employer']['cpf']);
         }
 
         if (isset( $data['resident']['rg'])) {
-            $data['resident']['rg'] = $this->repository->formatNumber($data['resident']['rg']);
+            $data['resident']['rg'] = $this->formatNumber($data['resident']['rg']);
         }
 
         if (isset( $data['resident']['phone'])) {
-            $data['resident']['phone'] = $this->repository->formatNumber($data['resident']['phone']);
+            $data['resident']['phone'] = $this->formatNumber($data['resident']['phone']);
         }
 
         $data['password'] = $this->random_password(10, 'upper');
@@ -82,6 +119,7 @@ class ResidentService {
         if ($user) {
             return ['success' => false, 'message' => 'Já existe email cadastrado!'];
         }
+
 
         $this->repository->store($data);
         return ['success' => true, 'message' => 'Cadastrado com sucesso!'];
@@ -106,6 +144,32 @@ class ResidentService {
     }
 
 
+
+    public function updateFormData($request, $id) {
+        $data = $request->all();
+
+        try{
+            if ($request->hasFile('url_image')) {
+                $image = $request->file('url_image');
+                $data['resident']['cpf'] = $this->formatNumber($data['resident']['cpf']);
+                $nameImage = $data['resident']['cpf'] . '.' . $image->getClientOriginalExtension();
+                if (file_exists(env('UPLOAD_IMAGE') . $nameImage)) {
+                    unlink(env('UPLOAD_IMAGE') . $nameImage);
+                }
+                $image->storeAs('public/uploads', $nameImage);
+                $publicPath = asset('storage/uploads/' . $nameImage);
+                $data['resident']['url_image'] = $publicPath;
+                return $this->update($data, $id);
+            }
+        }  catch (\Exception $ex) {
+             \Log::error('Erro ao salvar os dados:', [$ex->getMessage()]);
+            return response()->json(['success' => false, 'message' => 'Erro no cadastro de pessoa!'],500 );
+        }
+
+
+    }
+
+
     /**
      * Summary of update
      * @param array $data
@@ -114,18 +178,18 @@ class ResidentService {
      */
     public function update(array $data, $id) {
 
-        $data['resident']['cpf'] = $this->repository->formatNumber($data['resident']['cpf']);
+        $data['resident']['cpf'] = $this->formatNumber($data['resident']['cpf']);
         // Log::debug('dados do resident',[$data]);
         if (isset( $data['employer']['cpf'])) {
-            $data['employer']['cpf'] = $this->repository->formatNumber($data['employer']['cpf']);
+            $data['employer']['cpf'] = $this->formatNumber($data['employer']['cpf']);
         }
 
         if (isset( $data['resident']['rg'])) {
-            $data['resident']['rg'] = $this->repository->formatNumber($data['resident']['rg']);
+            $data['resident']['rg'] = $this->formatNumber($data['resident']['rg']);
         }
 
         if (isset( $data['resident']['phone'])) {
-            $data['resident']['phone'] = $this->repository->formatNumber($data['resident']['phone']);
+            $data['resident']['phone'] = $this->formatNumber($data['resident']['phone']);
         }
 
 
@@ -152,9 +216,12 @@ class ResidentService {
     public function destroy(int $id): void
     {
         $model = $this->findById($id);
-        $this->repository->destroy($model);
+        // $this->repository->destroy($model);
+        $model->delete();
 
     }
+
+
 
     /**
      * Summary of restore
@@ -232,6 +299,10 @@ class ResidentService {
     public function getPeopleCpf(string $cpf) {
 
         return $this->peopleService->getPeopleCpf($cpf);
+    }
+
+    public function getProfile(string $slug) {
+        return $this->repository->profile($slug);
     }
 
 }

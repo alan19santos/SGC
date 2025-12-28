@@ -39,16 +39,20 @@ class PeoplesController extends CrudController
         return response()->json(['message' =>'Registro restaurado com sucesso.'], 200);
     }
 
-    public function storeFormData(Request $request) {
-        $this->service->storeFormData($request);
+    public function storeFormData(StoreUpdatePeoplesFormRequest $request) {
+       return $this->service->storeFormData($request);
     }
 
-    public function updateFormData(Request $request, int $id) {
-        $this->service->updateFormData($request, $id);
+    public function updateFormData(StoreUpdatePeoplesFormRequest $request, int $id) {
+        return $this->service->updateFormData($request, $id);
     }
 
     public function getPeopleCpf(string $cpf) {
         return $this->service->getPeopleCpf($cpf);
+    }
+
+    public function getTypeAccount() {
+        return $this->service->getTypeAccount();
     }
 
 }

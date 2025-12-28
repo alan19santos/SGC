@@ -3,14 +3,17 @@
 namespace App\Services;
 use App\Repositories\Core\ServiceProviderRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
+use App\Services\PeoplesServices;
 
 class ServiceProviderService {
 
     private $repository;
+    private $peopleService;
 
-    public function __construct(ServiceProviderRepository $repository)
+    public function __construct(ServiceProviderRepository $repository, PeoplesServices $peopleService)
     {
         $this->repository = $repository;
+        $this->peopleService = $peopleService;
     }
 
     /**
@@ -64,7 +67,7 @@ class ServiceProviderService {
      * @param int $id
      * @return void
      */
-    public function delete(int $id):void  {
+    public function destroy(int $id):void  {
         $model = $this->findById($id);
         $model->delete();
     }
@@ -77,6 +80,11 @@ class ServiceProviderService {
     public function restore(int $id): void
     {
         $this->repository->restore($id);
+    }
+
+    public function getPeopleCpf(string $cpf) {
+        return $this->peopleService->getPeopleCpf($cpf);
+
     }
 
 }

@@ -14,6 +14,9 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\SpaceReservationController;
 use App\Http\Controllers\OccurrenceController;
 use App\Http\Controllers\PeoplesController;
+use App\Http\Controllers\CompanyController;
+use App\Http\Controllers\TypeServiceController;
+use App\Http\Controllers\EmployeeController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -40,17 +43,22 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/{id}', [UserController::class, 'update']);
         Route::get('/{id}', [UserController::class, 'show']);
         Route::get('/profile/{id}', [UserController::class, 'getProfileUser']);
+        Route::delete('/{id}', [UserController::class, 'destroy']);
     });
 
     Route::prefix('resident')->group(function () {
         Route::get('', [ResidentController::class, 'index']);
         Route::post('', [ResidentController::class, 'store']);
+        Route::post('/storeFormData', [ResidentController::class, 'storeFormData']);
         Route::put('/{id}', [ResidentController::class, 'update']);
+        Route::put('/updateFormData/{id}', [ResidentController::class, 'updateFormData']);
         Route::put('/beforeUpdate/{id}', [ResidentController::class, 'beforeUpdate']);
         Route::get('/{id}', [ResidentController::class, 'show']);
         Route::post('/update-image/{id}', [ResidentController::class, 'updateImage']);
         Route::get('/getImageUsers/{id}', [ResidentController::class, 'getImageUsers']);
         Route::get('/getPeopleCpf/{cpf}', [ResidentController::class, 'getPeopleCpf']);
+        Route::get('/getProfile/{slug}',[ResidentController::class, 'getProfile']);
+        Route::delete('/{id}', [ResidentController::class, 'destroy']);
 
     });
 
@@ -83,6 +91,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('', [ServiceProviderController::class, 'index']);
         Route::put('/{id}', [ServiceProviderController::class, 'update']);
         Route::get('/{id}', [ServiceProviderController::class, 'show']);
+        Route::delete('/{id}', [ServiceProviderController::class, 'destroy']);
     });
 
     Route::prefix('visitors')->group(function () {
@@ -90,7 +99,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('', [VisitorsController::class, 'index']);
         Route::put('/{id}', [VisitorsController::class, 'update']);
         Route::get('/{id}', [VisitorsController::class, 'show']);
-        // Route::get('/getAllVisitor', [VisitorsController::class, 'getVisitorCondominium']);
+        Route::get('/getPeopleCpf/{cpf}', [VisitorsController::class, 'getPeopleCpf']);
     });
 
 
@@ -108,6 +117,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('occurrence')->group(function () {
         Route::get('/getTypeOccurrence', [OccurrenceController::class,'typeOccurrence']);
+        Route::get('/getStatusOccurrence', [OccurrenceController::class,'statusOccurrence']);
         Route::get('', [OccurrenceController::class,'index']);
         Route::get('/{id}', [OccurrenceController::class,'show']);
         Route::post('', [OccurrenceController::class,'store']);
@@ -116,10 +126,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('', [OccurrenceController::class,'delete']);
     });
 
-
-
     Route::prefix('status')->group(function () {
         Route::get('', [StatusController::class, 'index']);
+    });
+
+    Route::prefix('typeService')->group(function() {
+        Route::get('/{id}', [TypeServiceController::class, 'show']);
+        Route::get('', [TypeServiceController::class, 'index']);
     });
 
     Route::prefix('drive')->group(function () {
@@ -129,18 +142,38 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('profile')->group(function () {
         Route::get('', [ProfileController::class, 'index']);
-        Route::get('/filterSlug', [ProfileController::class, 'filterSlug']);
-        Route::get('/filterSlugId', [ProfileController::class, 'filterSlugId']);
+        Route::get('/filterSlug/{slug}', [ProfileController::class, 'filterSlug']);
+        Route::get('/filterSlugId/{id}', [ProfileController::class, 'filterSlugId']);
     });
 
     Route::prefix('people')->group(function() {
+        Route::get('/getTypeAccount', [PeoplesController::class, 'getTypeAccount']);
         Route::post('', [PeoplesController::class, 'store']);
         Route::post('/storeFormData', [PeoplesController::class, 'storeFormData']);
         Route::get('', [PeoplesController::class, 'index']);
         Route::put('/updateFormData/{id}', [PeoplesController::class, 'updateFormData']);
         Route::put('/{id}', [PeoplesController::class, 'update']);
         Route::get('/{id}', [PeoplesController::class, 'show']);
-        Route::get('/getPeopleCpf', [PeoplesController::class, 'getPeopleCpf']);
+        Route::get('/getPeopleCpf/{cpf}', [PeoplesController::class, 'getPeopleCpf']);
+        Route::delete('/{id}', [PeoplesController::class, 'destroy']);
+    });
+
+    Route::prefix('company')->group(function() {
+        Route::get('', [CompanyController::class, 'index']);
+        Route::post('', [CompanyController::class, 'store']);
+        Route::put('/{id}', [CompanyController::class, 'update']);
+        Route::delete('/{id}', [CompanyController::class, 'destroy']);
+
+    });
+
+    Route::prefix('employee')->group(function() {
+        Route::get('/getPeopleCpf/{cpf}', [EmployeeController::class, 'getPeopleCpf']);
+        Route::get('', [EmployeeController::class, 'index']);
+        Route::post('', [EmployeeController::class, 'store']);
+        Route::put('/{id}', [EmployeeController::class, 'update']);
+        Route::post('/storeFormData', [EmployeeController::class, 'storeFormData']);
+        Route::put('/updateFormData/{id}', [EmployeeController::class, 'updateFormData']);
+        Route::delete('/{id}', [EmployeeController::class, 'destroy']);
     });
 
 

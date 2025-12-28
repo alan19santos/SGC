@@ -10,9 +10,13 @@ class Employee extends Model
     use HasFactory;
 
     protected $table = 'employee';
-    protected $fillable = ['name', 'cpf', 'rg'];
+    protected $fillable = ['name', 'cpf', 'rg', 'people_id','photo'];
 
     public function resident(){
         return $this->belongsToMany(Resident::class, 'resident_employee', 'employee_id', 'resident_id');
+    }
+
+    public function people() {
+        return $this->hasMany(Peoples::class, 'people_id', 'id');
     }
 }

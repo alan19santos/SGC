@@ -36,7 +36,7 @@ class UserRepository extends BaseRepository
      * @throws \App\Exceptions\UserException
      * @return void
      */
-    public function store(array $data): void
+    public function store(array $data)
     {
         try {
             DB::beginTransaction();
@@ -162,5 +162,6 @@ class UserRepository extends BaseRepository
 
         return $entity;
     }
+
 
 }

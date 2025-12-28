@@ -36,7 +36,7 @@ class CrudController extends Controller
 
     public function store(Request $request): JsonResponse
     {
-       
+
         $store = $this->service->store($request->all());
 
         $msg = (isset($store['message']) ? $store['message'] : 'Registro Inserido com sucesso.');

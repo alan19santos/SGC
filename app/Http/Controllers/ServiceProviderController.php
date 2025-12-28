@@ -37,5 +37,9 @@ class ServiceProviderController extends CrudController
         return response()->json(['message' =>'Registro restaurado com sucesso.'], 200);
     }
 
+     public function getPeopleCpf(string $cpf) {
+        return $this->service->getPeopleCpf($cpf);
+    }
+
 
 }

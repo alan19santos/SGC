@@ -44,6 +44,13 @@ class ResidentController extends CrudController
         return $this->service->updateImage($request, $id);
     }
 
+    public function storeFormData(Request $request) {
+        return $this->service->storeFormData($request);
+    }
+    public function updateFormData(Request $request, int $id) {
+        return $this->service->updateFormData($request, $id);
+    }
+
     public function getPeopleCpf(string $cpf) {
         return $this->service->getPeopleCpf($cpf);
     }
@@ -55,5 +62,9 @@ class ResidentController extends CrudController
         $url =  $find->url_image;
 
         return response()->json($url);
+    }
+
+    public function getProfile(string $slug) {
+        return $this->service->getProfile($slug);
     }
 }

@@ -17,9 +17,9 @@ class StoreUpdatePeoplesFormRequest extends FormRequest
     public function rules()
     {
         return [
-                'name'=>'required|string',
-                'cpf'=>'required|max:15|string',
-                'email'=>'required'
+                'people.name'=>'required|string',
+                'people.cpf'=>'required|max:15|string',
+                'people.email'=>'required'
             ];
     }
 

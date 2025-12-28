@@ -5,6 +5,10 @@ namespace App\Repositories\Core;
 
 use App\Models\Peoples;
 use App\Models\DrivePeople;
+use App\Models\BankAccount;
+use App\Models\Employee;
+use App\Models\EmployeePeople;
+use App\Models\TypeAccount;
 use App\Exceptions\CredentialsException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -25,7 +29,7 @@ class PeoplesRepository extends BaseRepository {
      * @return \Illuminate\Database\Eloquent\Collection
      */
     public function getAll(): Collection {
-        return $this->relationship($this->entity, ['drive'])->get();
+        return $this->relationship($this->entity, ['drive','bank','employeer'])->get();
     }
 
     /**
@@ -56,7 +60,16 @@ class PeoplesRepository extends BaseRepository {
       */
     public function findById(int $id): object
     {
-        return $this->relationship($this->entity, ['drive'])->findOrFail($id);
+        return $this->relationship($this->entity, ['drive','bank','employeer'])->findOrFail($id);
+    }
+
+
+    /**
+     * Summary of getEmailPeople
+     * @param string $email
+     */
+    public function getEmailPeople(string $email) {
+        return $this->relationship($this->entity, ['drive'])->where('email','=', $email)->get();
     }
 
     /**
@@ -70,31 +83,32 @@ class PeoplesRepository extends BaseRepository {
     }
 
     /**
-     * Summary of store
+     * Summary of getTypeAccount
+     * @return Collection|TypeAccount[]
+     */
+    public function getTypeAccount() {
+        return TypeAccount::get();
+    }
+
+    /**
+     * Summary of storeFormData
      * @param array $data
      * @return void
      */
-    public function store(array $data): void {
-
-        try {
-            DB::beginTransaction();
-            $people = $this->entity->create($data['people']);
-            $data['drive']['people_id'] = $people->id;
-            $this->createDrive( $data['drive']);
-             DB::commit();
-        } catch (\Exception $th) {
-           DB::rollBack();
-        }
-
-    }
-
     public function storeFormData(array $data) {
         try {
             DB::beginTransaction();
             $people = $this->entity->create($data['people']);
+            $data['people_id'] = $people->id;
             if (isset($data['drive']) && !empty($data['drive']['description'])) {
-                $data['drive']['people_id'] = $people->id;
-                $this->createDrive( $data['drive']);
+                    $this->createDrive( $data);
+            }
+            if (isset($data['bank']) && !empty($data['bank']['banck_accont_code'])) {
+                    $data['bank']['people_id'] = $people->id;
+                    $this->createBankAccount($data['bank']);
+            }
+            if (isset($data['employee']) && !empty($data['employee']['name'])) {
+                    $this->createEmployeer($data);
             }
             DB::commit();
         } catch (\Exception $th) {
@@ -104,14 +118,28 @@ class PeoplesRepository extends BaseRepository {
 
     }
 
+    /**
+     * Summary of updateFormData
+     * @param object $entity
+     * @param array $data
+     * @return void
+     */
     public function updateFormData(object $entity, array $data) {
         try {
             DB::beginTransaction();
             $entity->update($data['people']);
+            $data['people_id'] = $entity->id;
             if (isset($data['drive']) && !empty($data['drive']['description'])) {
-                $data['people_id'] = $entity->id;
-                $this->createDrive( $data);
+                    $this->createDrive( $data);
             }
+            if (isset($data['bank']) && !empty($data['bank']['banck_accont_code'])) {
+                    $data['bank']['people_id'] = $entity->id;
+                    $this->createBankAccount($data['bank']);
+            }
+            if (isset($data['employee']) && !empty($data['employee']['name'])) {
+                    $this->createEmployeer($data);
+            }
+
             DB::commit();
         } catch (\Exception $th) {
             DB::rollBack();
@@ -134,10 +162,62 @@ class PeoplesRepository extends BaseRepository {
             ]);
     }
 
+    /**
+     * Summary of createBankAccount
+     * @param mixed $account
+     * @return void
+     */
+    private function createBankAccount($account) {
+        BankAccount::updateOrCreate($account);
+    }
 
+    /**
+     * Summary of createEmployeer
+     * @param mixed $employee
+     * @return void
+     */
+    private function createEmployeer($employee) {
+       $employees = Employee::updateOrCreate($employee['employee']);
+       EmployeePeople::updateOrCreate([
+           'employee_id' => $employees->id,
+           'people_id' => $employee['people_id']
+        ]);
+    }
+
+    /**
+     * Summary of getPeopleCpf
+     * @param string $cpf
+     */
     public function getPeopleCpf(string $cpf) {
 
-        return$this->relationship($this->entity, ['drive'])->where('cpf','=', $cpf)->first();
+        return $this->relationship($this->entity, ['drive'])->where('cpf','=', $cpf)->first();
     }
+
+
+    public function applyFilter(array $data) {
+
+        $relationship = $this->relationship($this->entity, ['bank','drive']);
+
+        foreach ($data['people'] as $key => $value) {
+            if ($value) {
+                if (in_array($key, ['email', 'cpf','rg'])) {
+                    if ($key == 'email') {
+                        $relationship->whereRaw("UPPER(peoples.name) like UPPER('%{$value}%')");
+                    }
+                    if ($key == 'cpf') {
+                        $relationship->whereRaw("UPPER(peoples.cpf) like UPPER('%{$value}%')");
+                    }
+                    if ($key == 'rg') {
+                        $relationship->whereRaw("UPPER(peoples.rg) like UPPER('%{$value}%')");
+                    }
+                }
+            }
+
+        }
+        $totalPage = 10;
+        return $relationship->orderBy('peoples.name')->paginate($totalPage);
+    }
+
+
 
 }

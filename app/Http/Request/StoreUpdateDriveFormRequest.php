@@ -16,7 +16,7 @@ class StoreUpdateDriveFormRequest extends FormRequest
 
     public function rules()
     {
-        return ['description'          => 'required|max:50|string',  ];
+        return ['description'          => 'required|max:50|string', ];
     }
 
     public function failedValidation(Validator $validator)

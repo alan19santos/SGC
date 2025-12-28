@@ -58,7 +58,7 @@ class ApartmentRepository extends BaseRepository {
      * @throws \App\Exceptions\CredentialsException
      * @return void
      */
-    public function store(array $data): void
+    public function store(array $data)
     {
         try {
             DB::beginTransaction();

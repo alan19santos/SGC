@@ -41,17 +41,17 @@ class BaseRepository implements RepositoryInterface
         return $this->entity->paginate($totalPage);
     }
 
-    public function store(array $data): void
+    public function store(array $data)
     {
         $this->entity->firstOrCreate($data);
     }
 
-    public function update(object $entity, array $data): void
+    public function update(object $entity, array $data)
     {
         $entity->update($data);
     }
 
-    public function destroy(object $entity): void
+    public function destroy(object $entity)
     {
         $entity->delete();
     }

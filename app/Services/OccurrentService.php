@@ -103,6 +103,10 @@ class OccurrentService {
         return $this->repository->typeOccurrence();
     }
 
+    public function statusOccurrence() {
+        return $this->repository->statusOccurrence();
+    }
+
     /**
      * Summary of storeHistoric
      * @param array $data

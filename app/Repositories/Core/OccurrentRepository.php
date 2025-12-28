@@ -4,6 +4,8 @@
 namespace App\Repositories\Core;
 
 use App\Models\Occurrence;
+use App\Models\StatusOccurrence;
+use App\Models\ResponsibleAtribuiton;
 use App\Models\TypeOccurrence;
 use App\Models\HistoricOccurrence;
 use App\Exceptions\CredentialsException;
@@ -34,7 +36,7 @@ class OccurrentRepository extends BaseRepository {
     public function getAll(): Collection
     {
         // return $this->occurrence->all();
-        return $this->loadRelationships($this->occurrence, ['user','typeOccurrence'])->get();
+        return $this->loadRelationships($this->occurrence, ['user','typeOccurrence','statusOcurrence'])->get();
     }
 
     /**
@@ -44,7 +46,7 @@ class OccurrentRepository extends BaseRepository {
      */
     public function findById($id): object {
 
-        return $this->loadRelationships($this->occurrence, ['user','typeOccurrence'])->where('user_id', $id)->get();
+        return $this->loadRelationships($this->occurrence, ['user','typeOccurrence','statusOcurrence'])->where('user_id', $id)->get();
     }
 
     /**
@@ -78,7 +80,12 @@ class OccurrentRepository extends BaseRepository {
     {
         try {
             DB::beginTransaction();
-            $this->occurrence->create($data);
+            $ocurrence = $this->occurrence->create($data['occurrence']);
+
+            ResponsibleAtribuiton::updateOrCreate([
+                'occurrence_id'=> $ocurrence->id,
+                'responsible_id' => $data['responsible_id'],
+                'status_occurrence_id' => $data['occurrence']['status_occurrence_id']]);
             DB::commit();
         } catch (\Exception $th) {
             DB::rollback();
@@ -137,6 +144,9 @@ class OccurrentRepository extends BaseRepository {
         return TypeOccurrence::select('id','description')->get();
     }
 
+    public function statusOccurrence() {
+        return StatusOccurrence::get();
+    }
 
     /**
      * Summary of storeHistoric

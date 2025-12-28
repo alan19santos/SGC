@@ -12,6 +12,7 @@ use App\Models\Animals;
 use App\Models\Employee;
 use App\Models\Drive;
 use App\Models\Apartment;
+use App\Models\TypeAccount;
 use App\Exceptions\CredentialsException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -49,15 +50,7 @@ class ResidentRepository extends BaseRepository
         return $this->relationship($this->resident, ['drive', 'animals', 'employee','user', 'condominium','apartment'])->findOrFail($id);
     }
 
-    /**
-     * Summary of formatNumber
-     * @param string $number
-     * @return array|string|null
-     */
-    public function formatNumber(string $number) {
-        $number = preg_replace('/[^0-9]/', '', $number);
-        return $number;
-    }
+
 
     /**
      * Summary of update
@@ -87,7 +80,7 @@ class ResidentRepository extends BaseRepository
      *
      * Cadastrar dados que devem ser passados, profile, status, animais, torre/ap, condominio, empregada
      */
-    public function store(array $data): void
+    public function store(array $data)
     {
 
         try {
@@ -259,13 +252,16 @@ class ResidentRepository extends BaseRepository
         return $relationship->orderBy('resident.name')->paginate($totalPage);
     }
 
+
     /**
      * @return mixed
      */
-    private function profile()
+    public function profile($slug = '')
     {
-
-        return  Profile::where('slug', 'morador')->first();
+        if ($slug != '') {
+          return  Profile::where('slug', '=',$slug)->first();
+        }
+        return  Profile::where('slug','=', 'morador')->first();
     }
 
     /**
@@ -298,6 +294,7 @@ class ResidentRepository extends BaseRepository
 
         $mail->send($data);
     }
+
 
 
 }

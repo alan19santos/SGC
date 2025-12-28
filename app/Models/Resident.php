@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Models;
-
+use Arcanedev\LogViewer\Commands\StatsCommand;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -39,6 +39,14 @@ class Resident extends Model implements Auditable
 
     public function condominium() {
         return $this->belongsTo(Condominium::class);
+    }
+
+    protected Static function booted() {
+        static::deleting(function ($resident){
+            $resident->drive()->detach();
+            $resident->animals()->delete();
+            $resident->employee()->detach();
+        });
     }
 
 }
