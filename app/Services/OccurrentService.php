@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
 use App\Repositories\Core\OccurrentRepository;
+use App\Enums\StatusOccurrenceEnums;
 
 
 class OccurrentService {
@@ -59,9 +60,20 @@ class OccurrentService {
      */
     public function store($data) {
 
-        $data['user_id'] = Auth::id();
-        $data['date_occurrence'] = date('Y-m-d H:i:s');
-        $data['resolution'] = false;
+        $data['occurrence']['user_id'] = (!isset($data['responsible_id']) || empty($data['responsible_id']) ? Auth::id() : $data['responsible_id']);
+
+        $resident = $this->repository->getResident(Auth::id());
+        Log::debug('Residente', [$resident->condominium_id]);
+        $data['occurrence']['condominium_id'] = (!isset($data['responsible_id']) || empty($data['responsible_id']) ? $resident->condominium_id : $data['occurrence']['condominium_id']);
+        $data['occurrence']['date_occurrence'] = date('Y-m-d H:i:s');
+        $data['occurrence']['resolution'] = false;
+        $data['occurrence']['previsibles_days'] = (!isset($data['previsibles_days']) || empty($data['previsibles_days']) ? 5 : $data['responsible_id']);
+        $data['occurrence']['resident_id'] = $resident->id;
+        $status = $this->repository->statusOccurrence(StatusOccurrenceEnums::ABERTA);
+        $data['occurrence']['status_occurrence_id'] = (!isset($data['status_occurrence_id']) || empty($data['status_occurrence_id']) ? $status->id : $data['status_occurrence_id']);
+
+        Log::debug('residentData', [$data]);
+        // dd('teste');
         $this->repository->store($data);
     }
 
@@ -73,6 +85,8 @@ class OccurrentService {
      */
     public function update(array $data, $id) {
         $model = $this->findById($id);
+
+        $dataOccurrence = [];
         $this->repository->update($model, $data);
     }
 

@@ -8,6 +8,7 @@ use App\Models\StatusOccurrence;
 use App\Models\ResponsibleAtribuiton;
 use App\Models\TypeOccurrence;
 use App\Models\HistoricOccurrence;
+use App\Models\Resident;
 use App\Exceptions\CredentialsException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -74,18 +75,22 @@ class OccurrentRepository extends BaseRepository {
      * Summary of store
      * @param array $data
      * @throws \App\Exceptions\CredentialsException
-     * @return void
+     *
      */
-    public function store(array $data): void
+    public function store(array $data)
     {
+
         try {
             DB::beginTransaction();
             $ocurrence = $this->occurrence->create($data['occurrence']);
 
-            ResponsibleAtribuiton::updateOrCreate([
-                'occurrence_id'=> $ocurrence->id,
-                'responsible_id' => $data['responsible_id'],
-                'status_occurrence_id' => $data['occurrence']['status_occurrence_id']]);
+            // valida resp caso seja admin
+            if (isset($data['responsible_id']) && !empty($data['responsible_id'])) {
+                ResponsibleAtribuiton::updateOrCreate([
+                    'occurrence_id'=> $ocurrence->id,
+                    'responsible_id' => $data['responsible_id'],
+                    'status_occurrence_id' => $data['occurrence']['status_occurrence_id']]);
+            }
             DB::commit();
         } catch (\Exception $th) {
             DB::rollback();
@@ -144,8 +149,15 @@ class OccurrentRepository extends BaseRepository {
         return TypeOccurrence::select('id','description')->get();
     }
 
-    public function statusOccurrence() {
+    public function statusOccurrence($slug = '') {
+        if (!empty($slug)) {
+            return StatusOccurrence::where('slug','=', $slug)->first();
+        }
         return StatusOccurrence::get();
+    }
+
+    public function getResident(int $id) {
+        return Resident::where('user_id','=',$id)->first();
     }
 
     /**

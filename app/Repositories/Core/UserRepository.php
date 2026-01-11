@@ -121,7 +121,8 @@ class UserRepository extends BaseRepository
     public function getProfileUser($userId) {
 
         // $user = $this->user->where('id', $userId)->first();
-        $user = UserProfile::where('user_id','=', $userId)->first();
+        // $user = UserProfile::where('user_id','=', $userId)->first();
+        $user = $this->user->where('id', '=', $userId)->first();
         if ($user) {
             return Profile::where('id', '=',$user->profile_id)->first();
         }
