@@ -2,6 +2,8 @@
 
 namespace App\Services;
 use GuzzleHttp\Psr7\Request;
+use App\Services\EmployeeService;
+use App\Services\UserService;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
@@ -18,13 +20,16 @@ class OccurrentService {
      * @var
      */
     private $repository;
+    private $employeeService;
 
     /**
      * Summary of __construct
-     * @param \App\Repositories\Core\OccurrentRepository $repository
+     * @param OccurrentRepository $repository
+     * @param EmployeeService $employeeService
      */
-    public function __construct(OccurrentRepository $repository) {
+    public function __construct(OccurrentRepository $repository, EmployeeService $employeeService) {
         $this->repository = $repository;
+        $this->employeeService = $employeeService;
     }
 
     /**
@@ -63,7 +68,7 @@ class OccurrentService {
         $data['occurrence']['user_id'] = (!isset($data['responsible_id']) || empty($data['responsible_id']) ? Auth::id() : $data['responsible_id']);
 
         $resident = $this->repository->getResident(Auth::id());
-        Log::debug('Residente', [$resident->condominium_id]);
+
         $data['occurrence']['condominium_id'] = (!isset($data['responsible_id']) || empty($data['responsible_id']) ? $resident->condominium_id : $data['occurrence']['condominium_id']);
         $data['occurrence']['date_occurrence'] = date('Y-m-d H:i:s');
         $data['occurrence']['resolution'] = false;
@@ -72,8 +77,7 @@ class OccurrentService {
         $status = $this->repository->statusOccurrence(StatusOccurrenceEnums::ABERTA);
         $data['occurrence']['status_occurrence_id'] = (!isset($data['status_occurrence_id']) || empty($data['status_occurrence_id']) ? $status->id : $data['status_occurrence_id']);
 
-        Log::debug('residentData', [$data]);
-        // dd('teste');
+
         $this->repository->store($data);
     }
 
@@ -84,10 +88,19 @@ class OccurrentService {
      * @return void
      */
     public function update(array $data, $id) {
-        $model = $this->findById($id);
+        $occurrence = $this->findById($id);
+        $status = $this->repository->statusOccurrence(StatusOccurrenceEnums::CONCLUIDO);
+        if (isset($data['data']['responsible_id']) && !empty($data['data']['responsible_id'])) {
+            $user = $this->employeeService->findById($data['data']['responsible_id']);
+            $data['data']['occurrence_id'] = $occurrence->id;
+            $data['data']['users_id'] = $user->users_id;
+            $data['data']['resolution'] = ($status->id != $data['data']['status_occurrence_id'] ? false : true);
 
-        $dataOccurrence = [];
-        $this->repository->update($model, $data);
+            $this->repository->responsibleAtrbuition($data['data']);
+        }
+        unset($data['data']['occurrence_id']);
+        unset($data['data']['responsible_id']);
+        $this->repository->update($occurrence, $data['data']);
     }
 
     /**

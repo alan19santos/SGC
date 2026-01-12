@@ -1,7 +1,9 @@
 <?php
 
 namespace App\Services;
+use App\Mail\ResidentMail;
 use App\Repositories\Core\EmployeeRepository;
+use Exception;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class EmployeeService {
@@ -88,21 +90,32 @@ class EmployeeService {
 
    public function storeFormData($request) {
         $data = $request->all();
-
         try {
             if ($request->hasFile('photo')) {
-                $image = $request->file('photo');
-                $data['employee']['cpf'] = $this->formatNumber($data['employee']['cpf']);
-                $nameImage = $data['employee']['cpf'] . '.' . $image->getClientOriginalExtension();
-                if (file_exists(env('UPLOAD_IMAGE') . $nameImage)) {
-                    unlink(env('UPLOAD_IMAGE') . $nameImage);
+                $use = $this->repository->createUser($data);
+                if (!empty($use)) {
+                    $data['employee']['users_id'] = $use;
+                    $image = $request->file('photo');
+                    $data['employee']['cpf'] = $this->formatNumber($data['employee']['cpf']);
+                    $nameImage = $data['employee']['cpf'] . '.' . $image->getClientOriginalExtension();
+                    if (file_exists(env('UPLOAD_IMAGE') . $nameImage)) {
+                        unlink(env('UPLOAD_IMAGE') . $nameImage);
+                    }
+                    $image->storeAs('public/uploads', $nameImage);
+                    $publicPath = asset('storage/uploads/' . $nameImage);
+                    $data['employee']['photo'] = $publicPath;
+                    if ($use) {
+                        $this->sendMail( $use, 'Confirmação de cadastro:  Sistema SGC');
+                    }
+                    return $this->store($data['employee']);
+                } else {
+                    throw new Exception('Erro ao criar o usuário');
                 }
-                $image->storeAs('public/uploads', $nameImage);
-                $publicPath = asset('storage/uploads/' . $nameImage);
-                $data['employee']['photo'] = $publicPath;
-                return $this->store($data['employee']);
             } else if (!empty($data['employee']['photo'])) {
-               return $this->store($data['employee']);
+                $use = $this->repository->createUser($data);
+                if (!empty($use)) {
+                    return $this->store($data['employee']);
+                }
             } else {
                 return response()->json(['success' => false, 'message' => 'Erro no cadastro de Funcionário, falha na imagem!'],500 );
             }
@@ -145,6 +158,16 @@ class EmployeeService {
     public function getPeopleCpf(string $cpf) {
 
         return $this->peopleService->getPeopleCpf($cpf);
+    }
+
+    public function getType() {
+        return $this->repository->getType();
+    }
+
+    private function sendMail($data, $title) {
+        $mail = new ResidentMail($data['email'], $title);
+
+        $mail->send($data);
     }
 
 }

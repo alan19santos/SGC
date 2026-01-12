@@ -63,7 +63,7 @@ class UserService implements UserInterface
         $this->userRepository->store($data);
 
         $user = $this->findByEmail($data['email']);
-      Log::info($user);
+    //   Log::info($user);
         if ($user) {
             $this->sendMail( $data, 'Confirmação de cadastro:  Sistema SGC');
         }

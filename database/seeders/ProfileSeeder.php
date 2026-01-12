@@ -32,9 +32,17 @@ class ProfileSeeder extends Seeder
             [
                 'name' => 'AUXILIAR',
                 'slug' => 'auxiliar',
-            ]
+            ],
+            [
+                'name' => 'FUNCIONARIO',
+                'slug' => 'funcionario'
+            ],
         ];
 
-        Profile::insert($profile);
+
+        foreach ($profile as $dt) {
+            Profile::updateOrCreate(['name' => $dt['name']],
+                ['slug' => $dt['slug']]);
+        }
     }
 }

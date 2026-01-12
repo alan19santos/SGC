@@ -47,7 +47,7 @@ class OccurrentRepository extends BaseRepository {
      */
     public function findById($id): object {
 
-        return $this->loadRelationships($this->occurrence, ['user','typeOccurrence','statusOcurrence'])->where('user_id', $id)->get();
+        return $this->loadRelationships($this->occurrence, ['user','typeOccurrence','statusOcurrence'])->where('id', $id)->first();
     }
 
     /**
@@ -173,21 +173,41 @@ class OccurrentRepository extends BaseRepository {
         DB::beginTransaction();
         try {
             HistoricOccurrence::create($data);
-
             $occurrence->isResolved = true;
             $occurrence->save();
-
             DB::commit();
 
         } catch (\Exception $ex) {
-
             DB::rollBack();
             Log::error('Erro ao inserir histórico: ', [$ex->getMessage()]);
 
         }
-
-
     }
+
+    /**
+     * Summary of responsibleAtrbuition
+     * @param array $data
+     * @return void
+     */
+    public function responsibleAtrbuition(array $data) {
+        ResponsibleAtribuiton::updateOrCreate([
+                    'occurrence_id'=> $data['occurrence_id'],
+                    'responsible_id' => $data['users_id'],
+                    'status_occurrence_id' => $data['status_occurrence_id']]);
+    }
+
+    /**
+     * Summary of update
+     * @param object $entity
+     * @param array $data
+     * @return void
+     */
+    public function update(object $entity, array $data) {
+
+        $entity->update($data);
+    }
+
+
 
 }
 

@@ -170,6 +170,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/getPeopleCpf/{cpf}', [EmployeeController::class, 'getPeopleCpf']);
         Route::get('', [EmployeeController::class, 'index']);
         Route::post('', [EmployeeController::class, 'store']);
+        Route::get('/getType', [EmployeeController::class, 'getType']);
         Route::put('/{id}', [EmployeeController::class, 'update']);
         Route::post('/storeFormData', [EmployeeController::class, 'storeFormData']);
         Route::put('/updateFormData/{id}', [EmployeeController::class, 'updateFormData']);

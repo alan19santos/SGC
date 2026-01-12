@@ -50,6 +50,10 @@ class EmployeeController extends CrudController
         return $this->service->getPeopleCpf($cpf);
     }
 
+    public function getType() {
+        return $this->service->getType();
+    }
+
 
 
 }
