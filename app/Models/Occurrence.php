@@ -10,7 +10,7 @@ class Occurrence extends Model
     use HasFactory;
 
     protected $table = 'occurrence';
-    protected $fillable = ['date_occurrence','observation','previsibles_days','condominium_id','resident_id','title','user_id','type_occurrence_id','isResolved','resolution','status_occurrence_id'];
+    protected $fillable = ['date_occurrence','observation','previsibles_days','condominium_id','resident_id','title','user_id','type_occurrence_id','isResolved','resolution','status_occurrence_id','status_priority_id'];
 
 
     public function user() {
@@ -24,6 +24,10 @@ class Occurrence extends Model
 
     public function statusOcurrence() {
         return $this->belongsTo(StatusOccurrence::class , 'status_occurrence_id', 'id');
+    }
+
+    public function statusPriority() {
+        return $this->belongsTo(StatusPriority::class , 'status_priority_id', 'id');
     }
 
 

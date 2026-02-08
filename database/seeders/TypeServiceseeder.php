@@ -26,6 +26,9 @@ class TypeServiceseeder extends Seeder
             [
                 'name'=>'Capinagem', 'slug'=>'capinagem'
             ],
+            [
+                'name'=>'Condominio/Próprio', 'slug'=>'condominio_proprio'
+            ],
         ];
 
         foreach ($types as $type) {

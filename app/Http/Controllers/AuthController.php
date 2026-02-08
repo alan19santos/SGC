@@ -36,13 +36,20 @@ class AuthController extends Controller
         return response([], 204);
     }
 
+    /**
+     * Pega os dados para retornar as informações do usuário logado
+     * @param mixed $email
+     * @return array
+     */
     private function loginUser($email) {
 
         $user = $this->userService->findByEmail($email);
+
         return ['email' => $user->email,
             'name' => $user->name,
             'profile_id' => $user->profile_id,
             'id' => $user->id,
+            'users_condominiums' => $user->condominiums
         ];
     }
 }

@@ -45,6 +45,9 @@ class OccurrenceController extends CrudController
     public function statusOccurrence() {
         return $this->service->statusOccurrence();
     }
+    public function statusPriority() {
+        return $this->service->statusPriority();
+    }
 
     public function storeHistoric(Request $request) {
         return $this->service->storeHistoric($request->all());

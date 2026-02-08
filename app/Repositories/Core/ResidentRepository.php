@@ -10,9 +10,10 @@ use App\Models\Profile;
 use App\Models\UserProfile;
 use App\Models\Animals;
 use App\Models\Employee;
+use App\Models\CondominiumUser;
+use Illuminate\Support\Str;
 use App\Models\Drive;
 use App\Models\Apartment;
-use App\Models\TypeAccount;
 use App\Exceptions\CredentialsException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -82,37 +83,50 @@ class ResidentRepository extends BaseRepository
      */
     public function store(array $data)
     {
-
         try {
             DB::beginTransaction();
 
+            # Etapa de criação do usuário
+
+            # Verifica se esta vindo o profile, caso contrário, atribui o profile de morador
             $profile = isset($data['profile_id']) ? $data['profile_id'] : $this->profile()->id;
 
-            $password =  (isset($data['password']) ? $data['password'] : '123456');
+            $password =  (isset($data['password']) ? $data['password'] : Str::random(10));
             $user = ['name' => $data['resident']['name'], 'email' => $data['resident']['email'], 'profile_id' => $profile, 'password' => Hash::make($password)];
 
             $usu = $this->modalUser->create($user);
+            $usuario_id = $usu->id;
+            $profile_id = $profile;
 
             $user['password'] = $password;
-            $this->userProfile($usu->id, $profile);
+            $this->userProfile($usuario_id, $profile_id);
+            $this->CondominiumUser($usuario_id, $data['resident']['condominium_id']);
 
-            $data['resident']['user_id'] = $usu->id;
-            $data['resident']['profile_id'] = $profile;
+            $data['resident']['user_id'] = $usuario_id;
+            $data['resident']['profile_id'] = $profile_id;
 
              # Apartamento do morador
              if (isset($data['apartment'])) {
                 $data['resident']['apartment_id'] = $this->createApartmant($data);
             }
 
+            # cria o morador
             $resident = $this->resident->create($data['resident']);
 
             $data['resident_id'] = $resident->id;
 
-
+            # cria as associações do morador (animal, carro, empregada/funcionário)
             $this->createAssociate( $data);
 
+            # envia email de confirmação
             $this->sendMail( $user, 'Confirmação de cadastro:  Sistema SGC');
 
+            # Verifica se o residente já tem um cadastro nesse condominio, caso exista, retorna a excessão e desfaz o cadastro
+            if ($this->getCondominiumUsers($usuario_id, $data['resident']['condominium_id']) > 0) {
+               DB::rollBack();
+               Log::error('Usuário já associado a este condomínio!', ['user_id' => $usuario_id, 'condominium_id' => $data['resident']['condominium_id']]);
+               throw new CredentialsException('Usuário já associado a este condomínio!');
+            }
             DB::commit();
         } catch (\Exception $th) {
             DB::rollback();
@@ -272,6 +286,19 @@ class ResidentRepository extends BaseRepository
     private function userProfile($user_id, $profile_id)
     {
        UserProfile::created(['user_id' => $user_id, 'profile_id' => $profile_id]);
+    }
+
+    /**
+     * Retorna quantidade de condominios associados ao usuario
+     * @param mixed $user_id
+     * @return int
+     */
+    public function getCondominiumUsers($user_id, $condominium_id) {
+        return CondominiumUser::where('condominium_id', '=', $condominium_id)->where('user_id', '=', $user_id)->count();
+    }
+
+    private function CondominiumUser($user_id, $condominium_id) {
+        CondominiumUser::create(['user_id' => $user_id, 'condominium_id' => $condominium_id]);
     }
 
     /**

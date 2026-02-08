@@ -17,6 +17,7 @@ use App\Http\Controllers\PeoplesController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\TypeServiceController;
 use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\RevenueExpenseController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -118,6 +119,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('occurrence')->group(function () {
         Route::get('/getTypeOccurrence', [OccurrenceController::class,'typeOccurrence']);
         Route::get('/getStatusOccurrence', [OccurrenceController::class,'statusOccurrence']);
+        Route::get('/getStatusPriority', [OccurrenceController::class,'statusPriority']);
         Route::get('', [OccurrenceController::class,'index']);
         Route::get('/{id}', [OccurrenceController::class,'show']);
         Route::post('', [OccurrenceController::class,'store']);
@@ -160,6 +162,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::prefix('company')->group(function() {
         Route::get('', [CompanyController::class, 'index']);
+        Route::get('/{id}', [CompanyController::class, 'show']);
         Route::post('', [CompanyController::class, 'store']);
         Route::put('/{id}', [CompanyController::class, 'update']);
         Route::delete('/{id}', [CompanyController::class, 'destroy']);
@@ -175,6 +178,17 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/storeFormData', [EmployeeController::class, 'storeFormData']);
         Route::put('/updateFormData/{id}', [EmployeeController::class, 'updateFormData']);
         Route::delete('/{id}', [EmployeeController::class, 'destroy']);
+    });
+
+    Route::prefix('revenue-expense')->group(function() {
+        Route::get('/getTypeRevenueExpense', [RevenueExpenseController::class, 'getTypeRevenueExpense']);
+        Route::get('/financial-categories', [RevenueExpenseController::class, 'getFinancialCategories']);
+        Route::get('/financial-types', [RevenueExpenseController::class, 'getTypeRevenueExpense']);
+        Route::get('', [RevenueExpenseController::class, 'index']);
+        Route::get('/{id}', [RevenueExpenseController::class, 'show']);
+        Route::post('', [RevenueExpenseController::class, 'store']);
+        Route::put('/{id}', [RevenueExpenseController::class, 'update']);
+        Route::delete('/{id}', [RevenueExpenseController::class, 'destroy']);
     });
 
 

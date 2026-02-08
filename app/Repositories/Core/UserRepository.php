@@ -4,6 +4,7 @@ namespace App\Repositories\Core;
 use Illuminate\Support\Facades\Log;
 use App\Models\User;
 use App\Models\UserProfile;
+use App\Models\CondominiumUser;
 use App\Models\Profile;
 use App\Exceptions\UserException;
 use App\Repositories\Core\BaseRepository;
@@ -38,12 +39,20 @@ class UserRepository extends BaseRepository
      */
     public function store(array $data)
     {
+        $condominiumId = $data['condominium_id'] ?? null;
         try {
             DB::beginTransaction();
             $data['password'] = Hash::make($data['password']);
-            $this->user->create($data);
+            unset($data['condominium_id']);
+            $user = $this->user->create($data);
+            if ($condominiumId) {
+                CondominiumUser::create([
+                    'user_id' => $user->id,
+                    'condominium_id' => $condominiumId
+                ]);
+            }
             DB::commit();
-            // return $this->user;
+            // return $user;
         } catch (\Exception $th) {
             DB::rollback();
             Log::error($th->getMessage());
@@ -58,7 +67,7 @@ class UserRepository extends BaseRepository
      */
     public function findById(int $id): object
     {
-        return $this->relationship($this->user)
+        return $this->relationship($this->user, ['profile','condominiums'])
             ->withTrashed()
             ->findOrFail($id);
     }
@@ -69,7 +78,7 @@ class UserRepository extends BaseRepository
      */
     public function findByEmail(string $email)
     {
-        return $this->relationship($this->user)
+        return $this->relationship($this->user, ['profile','condominiums'])
             ->withTrashed()
             ->where('email', $email)
             ->first();
@@ -159,9 +168,11 @@ class UserRepository extends BaseRepository
      * Summary of relationship
      * @param mixed $entity
      */
-    private function relationship($entity) {
+    private function relationship($entity, array $relationships = []) {
 
-        return $entity;
+        return $entity->with(
+            $relationships
+        );
     }
 
 

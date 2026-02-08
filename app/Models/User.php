@@ -44,7 +44,13 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    // public function profile() {
-    //     return $this->belongsToMany(Profile::class, 'users_profiles', 'user_id', 'profile_id');
-    // }
+    public function profile()
+    {
+        return $this->belongsTo(Profile::class, 'profile_id', 'id');
+    }
+
+    public function condominiums()
+    {
+        return $this->belongsToMany(Condominium::class, 'condominium_user', 'user_id', 'condominium_id');
+    }
 }

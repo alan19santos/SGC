@@ -48,7 +48,8 @@ class UserService implements UserInterface
 
     public function findById(int $id)
     {
-        return new UserResource($this->userRepository->findById($id));
+        // return new UserResource($this->userRepository->findById($id));
+        return $this->userRepository->findById($id);
     }
 
     public function store(array $data)

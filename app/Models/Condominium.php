@@ -16,4 +16,24 @@ class Condominium extends Model implements Auditable
     public function towers() {
         return $this->hasMany(Tower::class , 'condominium_id', 'id');
     }
+
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'condominium_user', 'condominium_id', 'user_id');
+    }
+
+    public function occurrences()
+    {
+        return $this->hasMany(Occurrence::class, 'condominium_id', 'id');
+    }
+
+    public function residents()
+    {
+        return $this->hasMany(Resident::class, 'condominium_id', 'id');
+    }
+
+    public function fines()
+    {
+        return $this->hasMany(Fines::class, 'condominium_id', 'id');
+    }
 }

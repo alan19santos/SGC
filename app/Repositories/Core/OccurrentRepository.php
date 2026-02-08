@@ -5,10 +5,12 @@ namespace App\Repositories\Core;
 
 use App\Models\Occurrence;
 use App\Models\StatusOccurrence;
+use App\Models\StatusPriority;
 use App\Models\ResponsibleAtribuiton;
 use App\Models\TypeOccurrence;
 use App\Models\HistoricOccurrence;
 use App\Models\Resident;
+use App\Models\Fines;
 use App\Exceptions\CredentialsException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -37,7 +39,7 @@ class OccurrentRepository extends BaseRepository {
     public function getAll(): Collection
     {
         // return $this->occurrence->all();
-        return $this->loadRelationships($this->occurrence, ['user','typeOccurrence','statusOcurrence'])->get();
+        return $this->loadRelationships($this->occurrence, ['user','typeOccurrence','statusOcurrence','statusPriority'])->get();
     }
 
     /**
@@ -47,7 +49,7 @@ class OccurrentRepository extends BaseRepository {
      */
     public function findById($id): object {
 
-        return $this->loadRelationships($this->occurrence, ['user','typeOccurrence','statusOcurrence'])->where('id', $id)->first();
+        return $this->loadRelationships($this->occurrence, ['user','typeOccurrence','statusOcurrence','statusPriority'])->where('id', $id)->first();
     }
 
     /**
@@ -72,14 +74,31 @@ class OccurrentRepository extends BaseRepository {
     }
 
     /**
+     * Summary of storeFine
+     * @param array $data
+     * @throws \App\Exceptions\CredentialsException
+     *
+     */
+    public function storeFine(array $data)
+    {
+        try {
+            DB::beginTransaction();
+            $fine = Fines::create($data);
+            DB::commit();
+        } catch (\Exception $th) {
+            DB::rollback();
+            throw new CredentialsException($th->getMessage());
+        }
+        return $fine;
+    }
+    /**
      * Summary of store
      * @param array $data
      * @throws \App\Exceptions\CredentialsException
      *
      */
-    public function store(array $data)
+    public function storeModel(array $data)
     {
-
         try {
             DB::beginTransaction();
             $ocurrence = $this->occurrence->create($data['occurrence']);
@@ -96,6 +115,7 @@ class OccurrentRepository extends BaseRepository {
             DB::rollback();
             throw new CredentialsException($th->getMessage());
         }
+        return $ocurrence;
     }
 
 
@@ -149,6 +169,11 @@ class OccurrentRepository extends BaseRepository {
         return TypeOccurrence::select('id','description')->get();
     }
 
+    /**
+     * Summary of statusOccurrence
+     * @param mixed $slug
+     * @return Collection<int, StatusOccurrence>|StatusOccurrence|StatusOccurrence[]|TValue|null
+     */
     public function statusOccurrence($slug = '') {
         if (!empty($slug)) {
             return StatusOccurrence::where('slug','=', $slug)->first();
@@ -156,6 +181,23 @@ class OccurrentRepository extends BaseRepository {
         return StatusOccurrence::get();
     }
 
+    /**
+     * Summary of statusPriority
+     * @param mixed $slug
+     * @return Collection<int, StatusPriority>|StatusPriority|StatusPriority[]|TValue|null
+     */
+    public function statusPriority($slug = '') {
+        if (!empty($slug)) {
+            return StatusPriority::where('slug','=', $slug)->first();
+        }
+        return StatusPriority::get();
+    }
+
+    /**
+     * Summary of getResident
+     * @param int $id
+     * @return Resident|TValue|null
+     */
     public function getResident(int $id) {
         return Resident::where('user_id','=',$id)->first();
     }
@@ -205,6 +247,17 @@ class OccurrentRepository extends BaseRepository {
     public function update(object $entity, array $data) {
 
         $entity->update($data);
+    }
+
+
+
+    /**
+     * Quantidade de ocorrências por morador
+     * @param int $residentId
+     * @return int
+     */
+    public function getCountOccurrencesByResident(int $residentId) {
+        return $this->occurrence->where('resident_id', $residentId)->count();
     }
 
 

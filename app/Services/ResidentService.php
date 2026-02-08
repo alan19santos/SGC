@@ -120,7 +120,6 @@ class ResidentService {
             return ['success' => false, 'message' => 'Já existe email cadastrado!'];
         }
 
-
         $this->repository->store($data);
         return ['success' => true, 'message' => 'Cadastrado com sucesso!'];
     }

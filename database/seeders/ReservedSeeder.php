@@ -16,9 +16,10 @@ class ReservedSeeder extends Seeder
         //
         $data =
         [
-            ["name"=> "Salão de Festa", "description"=> ""],
-            ["name"=> "Churrasqueira", "description" => ""],
-            ["name"=> "Campo de Futebol", "description" => ""],
+            ["name"=> "Salão de Festa", "description"=> "Frigobar, Forno, Microondas, Churrasqueira"],
+            ["name"=> "Piscina", "description" => "Cadeiras, Mesas, Guarda-Sol"],
+            ["name"=> "Churrasqueira", "description" => "Completa"],
+            ["name"=> "Campo de Futebol", "description" => "Sintetico, quadra de areia, etc.."],
         ];
 
 

@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('status_occurrence', function (Blueprint $table) {
+        Schema::create('financial_category', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('slug');
+            $table->string('name'); //nome da categoria
+            $table->string('slug')->unique(); //identificador único
             $table->timestamps();
         });
     }
@@ -24,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('status_occurrence');
+        Schema::dropIfExists('financial_category');
     }
 };

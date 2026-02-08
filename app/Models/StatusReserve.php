@@ -9,6 +9,6 @@ class StatusReserve extends Model
 {
     use HasFactory;
 
-     protected $table = 'status_reserve';
+    protected $table = 'status_reserve';
     protected $fillable = ['name','slug'];
 }
