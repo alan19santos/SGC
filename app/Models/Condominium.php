@@ -13,6 +13,9 @@ class Condominium extends Model implements Auditable
     protected $table = 'condominium';
     protected $fillable = ['name','address','city','qtd_tower','qtd_ap'];
 
+    public function apartments() {
+        return $this->hasMany(Apartment::class, 'condominium_id', 'id');
+    }
     public function towers() {
         return $this->hasMany(Tower::class , 'condominium_id', 'id');
     }
@@ -35,5 +38,10 @@ class Condominium extends Model implements Auditable
     public function fines()
     {
         return $this->hasMany(Fines::class, 'condominium_id', 'id');
+    }
+
+    public function company()
+    {
+        return $this->hasOne(Company::class, 'condominium_id', 'id');
     }
 }

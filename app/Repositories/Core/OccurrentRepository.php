@@ -11,6 +11,7 @@ use App\Models\TypeOccurrence;
 use App\Models\HistoricOccurrence;
 use App\Models\Resident;
 use App\Models\Fines;
+use App\Models\Notifications;
 use App\Exceptions\CredentialsException;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
@@ -99,15 +100,16 @@ class OccurrentRepository extends BaseRepository {
      */
     public function storeModel(array $data)
     {
+        Log::debug('Dados recebidos para criar ocorrência: ', ['data' => $data]);
         try {
             DB::beginTransaction();
             $ocurrence = $this->occurrence->create($data['occurrence']);
 
             // valida resp caso seja admin
-            if (isset($data['responsible_id']) && !empty($data['responsible_id'])) {
+            if (isset($data['occurrence']['responsible_id']) && !empty($data['occurrence']['responsible_id'])) {
                 ResponsibleAtribuiton::updateOrCreate([
                     'occurrence_id'=> $ocurrence->id,
-                    'responsible_id' => $data['responsible_id'],
+                    'responsible_id' => $data['occurrence']['responsible_id'],
                     'status_occurrence_id' => $data['occurrence']['status_occurrence_id']]);
             }
             DB::commit();
@@ -116,6 +118,18 @@ class OccurrentRepository extends BaseRepository {
             throw new CredentialsException($th->getMessage());
         }
         return $ocurrence;
+    }
+
+    public function storeNotification(array $data) {
+        try {
+            DB::beginTransaction();
+            $notification = Notifications::create($data);
+            DB::commit();
+        } catch (\Exception $th) {
+            DB::rollback();
+            throw new CredentialsException($th->getMessage());
+        }
+        return $notification;
     }
 
 
@@ -165,7 +179,10 @@ class OccurrentRepository extends BaseRepository {
     /**
      * Summary of typeOccurrence
      */
-    public function typeOccurrence() {
+    public function typeOccurrence(string $slug = '') {
+        if (!empty($slug)) {
+            return TypeOccurrence::where('slug','=', $slug)->first();
+        }
         return TypeOccurrence::select('id','description')->get();
     }
 

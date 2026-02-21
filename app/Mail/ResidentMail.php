@@ -21,4 +21,12 @@ class ResidentMail {
             $message->subject('Criação de Usuário - SGC');
         });
     }
+
+
+    public function sendNotification($data) {
+        Mail::send('emails.email', ['meuMensagem' => $data['message'], 'subtitle' => ''], function ($message) use ($data) {
+            $message->to($data['email']);
+            $message->subject('Notificação - SGC');
+        });
+    }
 }

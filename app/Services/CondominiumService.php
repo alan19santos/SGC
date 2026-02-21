@@ -48,6 +48,7 @@ class CondominiumService
      */
     public function store($data)
     {
+        \Log::debug('CondominiumService@store called with data: ' , ['data' => $data]);
         $nameCondominium = $this->repository->findByName($data['name']);
         if ($nameCondominium) {
             return ['message' => 'Condominio já foi cadastrado'];

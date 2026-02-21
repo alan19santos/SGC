@@ -114,6 +114,7 @@ class EmployeeService {
             } else if (!empty($data['employee']['photo'])) {
                 $use = $this->repository->createUser($data);
                 if (!empty($use)) {
+                    $data['employee']['users_id'] = $use;
                     return $this->store($data['employee']);
                 }
             } else {
@@ -168,6 +169,11 @@ class EmployeeService {
         $mail = new ResidentMail($data['email'], $title);
 
         $mail->send($data);
+    }
+
+
+    public function findWhereFirst(string $field, $value) {
+        return $this->repository->findWhereFirst($field, $value);
     }
 
 }

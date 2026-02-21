@@ -19,6 +19,7 @@ class Fines extends Model
         'amount',
         'issued_at',
         'due_date',
+        'financial_status_id',
     ];
 
     public function resident()
@@ -34,5 +35,10 @@ class Fines extends Model
     public function condominium()
     {
         return $this->belongsTo(Condominium::class, 'condominium_id');
+    }
+
+    public function financialStatus()
+    {
+        return $this->belongsTo(FinancialStatus::class, 'financial_status_id');
     }
 }

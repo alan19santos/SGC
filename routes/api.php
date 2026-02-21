@@ -18,6 +18,8 @@ use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\TypeServiceController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\RevenueExpenseController;
+use App\Http\Controllers\FineController;
+use App\Http\Controllers\NotificationsController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -191,5 +193,17 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/{id}', [RevenueExpenseController::class, 'destroy']);
     });
 
+    Route::prefix('fines')->group(function() {
+        Route::get('', [FineController::class, 'index']);
+        Route::get('/{id}', [FineController::class, 'show']);
+        Route::post('', [FineController::class, 'store']);
+        Route::delete('/{id}', [FineController::class, 'destroy']);
+
+    });
+
+    Route::prefix('notifications')->group(function() {
+        Route::get('', [NotificationsController::class, 'myNotifications']);
+        Route::put('/{id}/read', [NotificationsController::class, 'markAsRead']);
+    });
 
 });

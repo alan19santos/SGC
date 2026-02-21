@@ -33,6 +33,9 @@ class TypeOccurrenceSeeeder extends Seeder
             ['description' => 'Sugestão', 'slug' => 'sugestao'],
             ['description' => 'Segurança', 'slug' => 'seguranca'],
             ['description' => 'Outros', 'slug' => 'outros'],
+            [
+                'description' => 'Multa Aplicada', 'slug' => 'multa_aplicada',
+            ],
 
         ];
         foreach ($status as $type) {

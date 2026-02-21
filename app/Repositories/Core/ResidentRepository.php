@@ -98,6 +98,14 @@ class ResidentRepository extends BaseRepository
             $usuario_id = $usu->id;
             $profile_id = $profile;
 
+                Log::debug('retorno do usuário', ['usuarios'=> $usuario_id, 'condomínio' => $data['resident']['condominium_id']]);
+                # Verifica se o residente já tem um cadastro nesse condominio, caso exista, retorna a excessão e desfaz o cadastro
+                if ($this->getCondominiumUsers($usuario_id, $data['resident']['condominium_id']) > 0) {
+                    DB::rollBack();
+                    Log::error('Usuário já associado a este condomínio!', ['user_id' => $usuario_id, 'condominium_id' => $data['resident']['condominium_id']]);
+                    throw new CredentialsException('Usuário já associado a este condomínio!');
+                }
+
             $user['password'] = $password;
             $this->userProfile($usuario_id, $profile_id);
             $this->CondominiumUser($usuario_id, $data['resident']['condominium_id']);
@@ -120,13 +128,6 @@ class ResidentRepository extends BaseRepository
 
             # envia email de confirmação
             $this->sendMail( $user, 'Confirmação de cadastro:  Sistema SGC');
-
-            # Verifica se o residente já tem um cadastro nesse condominio, caso exista, retorna a excessão e desfaz o cadastro
-            if ($this->getCondominiumUsers($usuario_id, $data['resident']['condominium_id']) > 0) {
-               DB::rollBack();
-               Log::error('Usuário já associado a este condomínio!', ['user_id' => $usuario_id, 'condominium_id' => $data['resident']['condominium_id']]);
-               throw new CredentialsException('Usuário já associado a este condomínio!');
-            }
             DB::commit();
         } catch (\Exception $th) {
             DB::rollback();

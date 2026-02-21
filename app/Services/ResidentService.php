@@ -63,6 +63,11 @@ class ResidentService {
         return $number;
     }
 
+
+    public function findWhereFirst(string $field, $value) {
+        return $this->repository->findWhereFirst($field, $value);
+    }
+
     public function storeFormData($request) {
         $data = $request->all();
 
@@ -98,6 +103,7 @@ class ResidentService {
     public function store(array $data) {
 
         $email = $data['resident']['email'];
+        $data['resident']['name'] = mb_strtoupper($data['resident']['name'], 'UTF-8');
         // Log::debug('dados do resident',[$data]);
         $user = $this->repository->getUserByEmail($email);
         $data['resident']['cpf'] = $this->formatNumber($data['resident']['cpf']);

@@ -4,6 +4,8 @@ namespace App\Services;
 use GuzzleHttp\Psr7\Request;
 use App\Services\EmployeeService;
 use App\Services\UserService;
+use App\Services\ResidentService;
+use App\Services\FineService;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Storage;
@@ -12,7 +14,10 @@ use Illuminate\Support\Facades\Auth;
 use App\Repositories\Core\OccurrentRepository;
 use App\Enums\StatusOccurrenceEnums;
 use App\Enums\StatusPriorityEnums;
+use App\Enums\FinancyTypeEnums;
+use App\Enums\FinancyStatusEnums;
 use App\Mail\EmployeeMail;
+use App\Mail\ResidentMail;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\App;
 
@@ -24,7 +29,8 @@ class OccurrentService {
      */
     private $repository;
     private $employeeService;
-
+    private $residentService;
+    private $fineService;
     const ROWS_OCCURRENCE = 3;
     const FINE_AMOUNT = 50.00;
 
@@ -32,10 +38,14 @@ class OccurrentService {
      * Summary of __construct
      * @param OccurrentRepository $repository
      * @param EmployeeService $employeeService
+     * @param ResidentService $residentService
+     * @param FineService $fineService
      */
-    public function __construct(OccurrentRepository $repository, EmployeeService $employeeService) {
+    public function __construct(OccurrentRepository $repository, EmployeeService $employeeService, ResidentService $residentService, FineService $fineService) {
         $this->repository = $repository;
         $this->employeeService = $employeeService;
+        $this->residentService = $residentService;
+        $this->fineService = $fineService;
     }
 
     /**
@@ -64,46 +74,127 @@ class OccurrentService {
         return $this->repository->paginate($id);
     }
 
+
     /**
-     * Summary of store
+     * Summary of arrayOccurrence
      * @param mixed $data
+     * @return array{condominium_id: mixed, date_occurrence: string, observations: mixed, previsibles_days: mixed, resident_id: mixed, resolution: bool, status_occurrence_id: mixed, status_priority_id: mixed, title: mixed, type_occurrence_id: mixed, user_id: mixed}
+     */
+    private function arrayOccurrence($data) {
+        return [
+            'title' => $data['title'],
+            'observation' => $data['observations'],
+            'date_occurrence' => date('Y-m-d H:i:s'),
+            'resolution' => false,
+            'responsible_id' => (!isset($data['responsible_id']) || empty($data['responsible_id']) ? Auth::id() : $data['responsible_id']),
+            'previsibles_days' => (!isset($data['previsibles_days']) || empty($data['previsibles_days']) ? 5 : $data['previsibles_days']),
+            'resident_id' => $data['resident_id'],
+            'user_id' => (!isset($data['responsible_id']) || empty($data['responsible_id']) ? Auth::id() : $data['responsible_id']),
+            'condominium_id' => $data['condominium_id'],
+            'status_occurrence_id' => (!isset($data['status_occurrence_id']) || empty($data['status_occurrence_id']) ? $this->repository->statusOccurrence(StatusOccurrenceEnums::ABERTA)->id : $data['status_occurrence_id']),
+            'status_priority_id' => (!isset($data['status_priority_id']) || empty($data['status_priority_id']) ? $this  ->repository->statusPriority(StatusPriorityEnums::MEDIA)->id : $data['status_priority_id']),
+            'type_occurrence_id' => (!isset($data['type_occurrence_id']) || empty($data['type_occurrence_id']) ? $this->repository->typeOccurrence(FinancyTypeEnums::MULTA_APLICADA)->id : $data['type_occurrence_id']),
+        ];
+    }
+
+
+    private function finacyStatus($slug) {
+        return $this->fineService->financyStatus($slug);
+    }
+
+
+
+    /* Summary of store
+     * @param array $data
      * @return void
      */
-    public function store(array $data) {
+    public function store(array $data)
+    {
 
-        $data['occurrence']['user_id'] = (!isset($data['responsible_id']) || empty($data['responsible_id']) ? Auth::id() : $data['responsible_id']);
-        $userId = $data['occurrence']['user_id'];
-        $resident = $this->repository->getResident(Auth::id());
+        Log::debug('Dados recebidos para criar ocorrência: ', ['data' => $data]);
+        try {
 
-        $data['occurrence']['condominium_id'] = (!isset($data['responsible_id']) || empty($data['responsible_id']) ? $resident->condominium_id : $data['occurrence']['condominium_id']);
-        $data['occurrence']['date_occurrence'] = date('Y-m-d H:i:s');
-        $data['occurrence']['resolution'] = false;
-        $data['occurrence']['previsibles_days'] = (!isset($data['previsibles_days']) || empty($data['previsibles_days']) ? 5 : $data['previsibles_days']);
-        // $data['occurrence']['resident_id'] = $resident->id;
-        $status = $this->repository->statusOccurrence(StatusOccurrenceEnums::ABERTA);
-        $priority = $this->repository->statusPriority(StatusPriorityEnums::MEDIA);
-        $data['occurrence']['status_occurrence_id'] = (!isset($data['status_occurrence_id']) || empty($data['status_occurrence_id']) ? $status->id : $data['status_occurrence_id']);
-        $data['occurrence']['status_priority_id'] = (!isset($data['status_priority_id']) || empty($data['status_priority_id']) ? $priority->id : $data['status_priority_id']);
-        $occurrence = $this->repository->storeModel($data);
-        Log::debug('retorno da ocorrencia', ['ocorrencia'=> $occurrence]);
-        //enviar email
-        $user = $this->employeeService->findById($userId);
-        $countResident = $this->repository->getCountOccurrencesByResident($data['occurrence']['resident_id']);
+            $resident = $this->repository->getResident(Auth::id());
 
-        // SE O NÚMERO DE OCORRÊNCIAS FOR MAIOR OU IGUAL A 3, GERAR MULTA AUTOMATICAMENTE
-        if ($countResident >= self::ROWS_OCCURRENCE) {
-            $fines = $this->repository->storeFine([
-                'condominium_id' => $resident->condominium_id,
-                'resident_id' => $data['occurrence']['resident_id'],
-                'occurrence_id' => $occurrence->id,
-                'amount' => self::FINE_AMOUNT, // cria uma tabela de preço por condominio depois
-                'issued_at' => Carbon::today(),
-                'due_date' => Carbon::today()->addDays(7), // cria uma regra de negocio depois para cada condominio
-            ]);
+            // validar se o condomínio_id foi enviado no request, se não tiver, pegar do morador autenticado, se não tiver, lançar uma exceção
+            $condominiumId = null;
+            if (isset($data['occurrence']['condominium_id']) && !empty($data['occurrence']['condominium_id'])) {
+                $condominiumId = $data['occurrence']['condominium_id'];
+            } elseif ($resident) {
+                $condominiumId = $resident->condominium_id;
+            }
 
-            Log::debug('retorno da multa', ['multa'=> $fines]);
+            if (!$condominiumId) {
+                throw new \DomainException('Condomínio não encontrado para o usuário autenticado.');
+            }
+
+            $occurrence['occurrence'] = $this->arrayOccurrence($data['occurrence']);
+            // Log::debug('Dados formatados para criar ocorrência: ', ['occurrence' => $occurrence]);
+
+            $occurrence = $this->repository->storeModel($occurrence);
+
+            $typeOccurrence = $this->repository->typeOccurrence(FinancyTypeEnums::MULTA_APLICADA);
+
+
+            // dados do responsável pela ocorrência, para enviar email de notificação
+            $user = $this->employeeService->findById($data['responsible_id']);
+
+            // Verificar o número de ocorrências do morador
+            $countResident = $this->repository->getCountOccurrencesByResident($data['occurrence']['resident_id']);
+
+            // SE O NÚMERO DE OCORRÊNCIAS FOR MAIOR OU IGUAL A 3, OU SE FOR DO TIPO MULTA_APLICADA, GERAR MULTA AUTOMATICAMENTE
+            if ($data['occurrence']['type_occurrence_id'] == $typeOccurrence->id || $countResident >= self::ROWS_OCCURRENCE) {
+                $fines = $this->repository->storeFine([
+                    'condominium_id' => $condominiumId,
+                    'financial_status_id' => $this->finacyStatus(FinancyStatusEnums::PENDENTE)->id, // 1 = Pendente
+                    'resident_id' => $data['occurrence']['resident_id'],
+                    'occurrence_id' => $occurrence->id,
+                    'amount' => self::FINE_AMOUNT, // cria uma tabela de preço por condominio depois
+                    'issued_at' => Carbon::today(),
+                    'due_date' => Carbon::today()->addDays(7), // cria uma regra de negocio depois para cada condominio
+                ]);
+
+                Log::debug('retorno da multa', ['multa' => $fines]);
+            }
+
+            //Criar notificação para morador que esta recebendo a denuncia/ocorrencia
+            if (isset($data['occurrence']['resident_id']) && !empty($data['occurrence']['resident_id'])) {
+                $notifications = $this->repository->storeNotification([
+                    'title' => $data['occurrence']['title'] ?? 'Nova ocorrência registrada',
+                    'message' => $data['occurrence']['observations'] ?? 'Uma nova ocorrência foi registrada em seu nome. Por favor, verifique os detalhes e tome as medidas necessárias.',
+                    'read' => false,
+                    'user_id' => $this->residentService->findWhereFirst('id', $data['occurrence']['resident_id'])->user_id,
+                ]);
+
+                Log::debug('retorno da notificação morador', ['notificação' => $notifications]);
+
+                // busca os dados do marador para enviar a notificação
+                $dataResidente = $this->residentService->findWhereFirst('id', $data['occurrence']['resident_id']);
+                $this->sendNotification($dataResidente, $data['occurrence']['title'] ?? 'Nova ocorrência registrada', $occurrence, $data['occurrence']['observations']);
+            }
+
+            //Criar notificação para o funcionário responsável pela ocorrência
+            if (isset($data['occurrence']['responsible_id']) && !empty($data['occurrence']['responsible_id'])) {
+                $notifications = $this->repository->storeNotification([
+                    'title' => $data['occurrence']['title'] ?? 'Nova ocorrência registrada',
+                    'message' => $data['occurrence']['observations'] ?? 'Uma nova ocorrência foi registrada. Por favor, verifique os detalhes e tome as medidas necessárias.',
+                    'read' => false,
+                    'user_id' => $this->employeeService->findWhereFirst('id', $data['occurrence']['responsible_id'])->user_id,
+                ]);
+
+                Log::debug('retorno da notificação funcionário', ['notificação' => $notifications]);
+
+                // busca os dados do funcionário para enviar a notificação
+                $dataFuncionario = $this->employeeService->findWhereFirst('id', $data['occurrence']['responsible_id']);
+                $this->sendNotification($dataFuncionario, $data['occurrence']['title'] ?? 'Nova ocorrência registrada', $occurrence, $data['occurrence']['observations']);
+            }
+            //enviar email
+            $this->sendMail($user, 'Abertura de chamado', $occurrence);
+
+        } catch (\Exception $ex) {
+            Log::error('Erro ao criar ocorrência: ', [$ex->getMessage()]);
+            throw new \DomainException('Erro ao criar ocorrência. Por favor, tente novamente.');
         }
-        $this->sendMail($user,'Abertura de chamado', $occurrence);
     }
 
     /**
@@ -128,6 +219,11 @@ class OccurrentService {
         $this->repository->update($occurrence, $data['data']);
         // Log::debug('retorno do usuário', ['usuarios'=> $user->id, 'ocorrencia' => $id]);
         $this->sendMail($user,'Abertura de chamado', $occurrence);
+    }
+
+
+    public function storeNotification(array $data) {
+
     }
 
     /**
@@ -183,9 +279,32 @@ class OccurrentService {
     private function sendMail($data, $title, $occurrence = null) {
         $userSErvice = App::make(UserService::class);
         $user = $userSErvice->findById($data->users_id);
-// Log::debug('retorno do usuário', ['usuarios'=> $user->email, 'ocorrencia' => $data]);
+
         $mail = new EmployeeMail($user->email, $title);
         $data['number'] = $occurrence->id ?? $occurrence->id;
         $mail->send($data);
     }
+
+
+    /**
+     * Summary of sendNotification
+     * @param mixed $data
+     * @param mixed $title
+     * @param mixed $occurrence
+     * @param mixed $message
+     * @return void
+     */
+    private function sendNotification($data, $title, $occurrence = null, $message = null) {
+
+        $userSErvice = App::make(UserService::class);
+        $user = $userSErvice->findById($data->user_id);
+
+        $mail = new ResidentMail($user->email, $title);
+        $data['number'] = $occurrence->id ?? $occurrence->id;
+        $data['message'] = $message ?? 'Uma nova ocorrência foi registrada em seu nome. Por favor, verifique os detalhes e tome as medidas necessárias.';
+        $data['email'] = $user->email;
+        $mail->sendNotification($data);
+
+    }
+
 }
