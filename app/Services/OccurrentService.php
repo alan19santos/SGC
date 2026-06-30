@@ -88,7 +88,7 @@ class OccurrentService {
             'resolution' => false,
             'responsible_id' => (!isset($data['responsible_id']) || empty($data['responsible_id']) ? Auth::id() : $data['responsible_id']),
             'previsibles_days' => (!isset($data['previsibles_days']) || empty($data['previsibles_days']) ? 5 : $data['previsibles_days']),
-            'resident_id' => $data['resident_id'],
+            'resident_id' => $data['resident_id'] ?? null,
             'user_id' => (!isset($data['responsible_id']) || empty($data['responsible_id']) ? Auth::id() : $data['responsible_id']),
             'condominium_id' => $data['condominium_id'],
             'status_occurrence_id' => (!isset($data['status_occurrence_id']) || empty($data['status_occurrence_id']) ? $this->repository->statusOccurrence(StatusOccurrenceEnums::ABERTA)->id : $data['status_occurrence_id']),
@@ -110,7 +110,8 @@ class OccurrentService {
      */
     public function store(array $data)
     {
-
+        $isResponsible = isset($data['occurrence']['responsible_id']) && !empty($data['occurrence']['responsible_id']) ? true : false;
+        $isResident = isset($data['occurrence']['resident_id']) && !empty($data['occurrence']['resident_id']) ? true : false;
         Log::debug('Dados recebidos para criar ocorrência: ', ['data' => $data]);
         try {
 
@@ -122,6 +123,7 @@ class OccurrentService {
                 $condominiumId = $data['occurrence']['condominium_id'];
             } elseif ($resident) {
                 $condominiumId = $resident->condominium_id;
+                $data['occurrence']['condominium_id'] = $condominiumId;
             }
 
             if (!$condominiumId) {
@@ -137,28 +139,39 @@ class OccurrentService {
 
 
             // dados do responsável pela ocorrência, para enviar email de notificação
-            $user = $this->employeeService->findById($data['responsible_id']);
+            // Se o responsável for definido no momento da criação da ocorrência, usar os dados do responsável, caso contrário, usar os dados do administrador
+            if ($isResponsible) {
+                $user = $this->employeeService->findById($data['occurrence']['responsible_id']);
+            } else {
+                $userService = App::make(UserService::class);
+                $user = $userService->findByEmail('ADMINISTRADOR@SGC.COM.BR');
 
-            // Verificar o número de ocorrências do morador
-            $countResident = $this->repository->getCountOccurrencesByResident($data['occurrence']['resident_id']);
-
-            // SE O NÚMERO DE OCORRÊNCIAS FOR MAIOR OU IGUAL A 3, OU SE FOR DO TIPO MULTA_APLICADA, GERAR MULTA AUTOMATICAMENTE
-            if ($data['occurrence']['type_occurrence_id'] == $typeOccurrence->id || $countResident >= self::ROWS_OCCURRENCE) {
-                $fines = $this->repository->storeFine([
-                    'condominium_id' => $condominiumId,
-                    'financial_status_id' => $this->finacyStatus(FinancyStatusEnums::PENDENTE)->id, // 1 = Pendente
-                    'resident_id' => $data['occurrence']['resident_id'],
-                    'occurrence_id' => $occurrence->id,
-                    'amount' => self::FINE_AMOUNT, // cria uma tabela de preço por condominio depois
-                    'issued_at' => Carbon::today(),
-                    'due_date' => Carbon::today()->addDays(7), // cria uma regra de negocio depois para cada condominio
-                ]);
-
-                Log::debug('retorno da multa', ['multa' => $fines]);
             }
 
+            if ($isResident) {
+                 // Verificar o número de ocorrências do morador
+                 $countResident = $this->repository->getCountOccurrencesByResident($data['occurrence']['resident_id']);
+
+                // SE O NÚMERO DE OCORRÊNCIAS FOR MAIOR OU IGUAL A 3, OU SE FOR DO TIPO MULTA_APLICADA, GERAR MULTA AUTOMATICAMENTE
+                if ($data['occurrence']['type_occurrence_id'] == $typeOccurrence->id || $countResident >= self::ROWS_OCCURRENCE) {
+                    $fines = $this->repository->storeFine([
+                        'condominium_id' => $condominiumId,
+                        'financial_status_id' => $this->finacyStatus(FinancyStatusEnums::PENDENTE)->id, // 1 = Pendente
+                        'resident_id' => $data['occurrence']['resident_id'],
+                        'occurrence_id' => $occurrence->id,
+                        'amount' => self::FINE_AMOUNT, // cria uma tabela de preço por condominio depois
+                        'issued_at' => Carbon::today(),
+                        'due_date' => Carbon::today()->addDays(7), // cria uma regra de negocio depois para cada condominio
+                    ]);
+
+                    Log::debug('retorno da multa', ['multa' => $fines]);
+                }
+            }
+
+
+
             //Criar notificação para morador que esta recebendo a denuncia/ocorrencia
-            if (isset($data['occurrence']['resident_id']) && !empty($data['occurrence']['resident_id'])) {
+            if ($isResident) {
                 $notifications = $this->repository->storeNotification([
                     'title' => $data['occurrence']['title'] ?? 'Nova ocorrência registrada',
                     'message' => $data['occurrence']['observations'] ?? 'Uma nova ocorrência foi registrada em seu nome. Por favor, verifique os detalhes e tome as medidas necessárias.',
@@ -174,22 +187,29 @@ class OccurrentService {
             }
 
             //Criar notificação para o funcionário responsável pela ocorrência
-            if (isset($data['occurrence']['responsible_id']) && !empty($data['occurrence']['responsible_id'])) {
+            if ($isResponsible || ($user && isset($user->id))) {
+                $userId = $isResponsible ? $this->employeeService->findWhereFirst('id', $data['occurrence']['responsible_id'])->user_id : $user->id;
                 $notifications = $this->repository->storeNotification([
                     'title' => $data['occurrence']['title'] ?? 'Nova ocorrência registrada',
                     'message' => $data['occurrence']['observations'] ?? 'Uma nova ocorrência foi registrada. Por favor, verifique os detalhes e tome as medidas necessárias.',
                     'read' => false,
-                    'user_id' => $this->employeeService->findWhereFirst('id', $data['occurrence']['responsible_id'])->user_id,
+                    'user_id' => $userId,
                 ]);
 
                 Log::debug('retorno da notificação funcionário', ['notificação' => $notifications]);
 
-                // busca os dados do funcionário para enviar a notificação
-                $dataFuncionario = $this->employeeService->findWhereFirst('id', $data['occurrence']['responsible_id']);
-                $this->sendNotification($dataFuncionario, $data['occurrence']['title'] ?? 'Nova ocorrência registrada', $occurrence, $data['occurrence']['observations']);
+                    if ($isResponsible) {
+                        // busca os dados do funcionário para enviar a notificação
+                        $dataFuncionario = $this->employeeService->findWhereFirst('id', $data['occurrence']['responsible_id']);
+                        $this->sendNotification($dataFuncionario, $data['occurrence']['title'] ?? 'Nova ocorrência registrada', $occurrence, $data['occurrence']['observations']);
+                    }
+                }
+
+
+            if ($isResponsible) {
+                //enviar email
+                $this->sendMail($user, 'Abertura de chamado', $occurrence);
             }
-            //enviar email
-            $this->sendMail($user, 'Abertura de chamado', $occurrence);
 
         } catch (\Exception $ex) {
             Log::error('Erro ao criar ocorrência: ', [$ex->getMessage()]);
@@ -211,8 +231,17 @@ class OccurrentService {
             $data['data']['occurrence_id'] = $occurrence->id;
             $data['data']['users_id'] = $user->users_id;
             $data['data']['resolution'] = ($status->id != $data['data']['status_occurrence_id'] ? false : true);
+            $data['data']['observation'] = $data['data']['observations'] ?? '';
 
             $this->repository->responsibleAtrbuition($data['data']);
+            $notifications = $this->repository->storeNotification([
+                'title' => 'Atualização de ocorrência',
+                'message' => !empty($data['data']['observations']) ? $data['data']['observations'] : 'A ocorrência #' . $occurrence->id . ' foi atualizada. Por favor, verifique os detalhes e tome as medidas necessárias.',
+                'read' => false,
+                'user_id' => $user->users_id,
+            ]);
+
+            Log::debug('retorno da notificação morador', ['notificação' => $notifications]);
         }
         unset($data['data']['occurrence_id']);
         unset($data['data']['responsible_id']);
@@ -222,9 +251,6 @@ class OccurrentService {
     }
 
 
-    public function storeNotification(array $data) {
-
-    }
 
     /**
      * Summary of delete
@@ -244,6 +270,10 @@ class OccurrentService {
     public function restore(int $id): void
     {
         $this->repository->restore($id);
+    }
+
+    public function getAllByResident(int $residentId) {
+        return $this->repository->getAllByResident($residentId);
     }
 
     /**

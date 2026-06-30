@@ -122,6 +122,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/getTypeOccurrence', [OccurrenceController::class,'typeOccurrence']);
         Route::get('/getStatusOccurrence', [OccurrenceController::class,'statusOccurrence']);
         Route::get('/getStatusPriority', [OccurrenceController::class,'statusPriority']);
+        Route::get('/getAllByResident/{residentId}', [OccurrenceController::class,'getAllByResident']);
         Route::get('', [OccurrenceController::class,'index']);
         Route::get('/{id}', [OccurrenceController::class,'show']);
         Route::post('', [OccurrenceController::class,'store']);

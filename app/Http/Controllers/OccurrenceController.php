@@ -53,4 +53,8 @@ class OccurrenceController extends CrudController
         return $this->service->storeHistoric($request->all());
     }
 
+    public function getAllByResident(int $residentId) {
+        return $this->service->getAllByResident($residentId);
+    }
+
 }
