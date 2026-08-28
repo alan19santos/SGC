@@ -82,15 +82,18 @@ class ResidentService {
                 $image->storeAs('public/uploads', $nameImage);
                 $publicPath = asset('storage/uploads/' . $nameImage);
                 $data['resident']['url_image'] = $publicPath;
-                return $this->store($data);
-            } else if (!empty($data['resident']['url_image'])) {
-               return $this->store($data);
-            } else {
-                return response()->json(['success' => false, 'message' => 'Erro no cadastro de pessoa, falha na imagem!'],500 );
             }
+
+            $result = $this->store($data);
+
+            if (!$result['success']) {
+                return response()->json(['success' => false, 'message' => $result['message']], 422);
+            }
+
+            return response()->json(['success' => true, 'message' => $result['message']], 201);
         } catch (\Exception $ex) {
             \Log::error('Erro ao salvar os dados:', [$ex->getMessage()]);
-            return response()->json(['success' => false, 'message' => 'Erro no cadastro de pessoa!'],500 );
+            return response()->json(['success' => false, 'message' => 'Erro no cadastro de morador!'], 500);
         }
 
     }
@@ -104,8 +107,6 @@ class ResidentService {
 
         $email = $data['resident']['email'];
         $data['resident']['name'] = mb_strtoupper($data['resident']['name'], 'UTF-8');
-        // Log::debug('dados do resident',[$data]);
-        $user = $this->repository->getUserByEmail($email);
         $data['resident']['cpf'] = $this->formatNumber($data['resident']['cpf']);
 
         if (isset( $data['employer']['cpf'])) {
@@ -122,8 +123,18 @@ class ResidentService {
 
         $data['password'] = $this->random_password(10, 'upper');
 
+        $user = $this->repository->getUserByEmail($email);
+
         if ($user) {
-            return ['success' => false, 'message' => 'Já existe email cadastrado!'];
+            // Reusar o usuário existente se o email já estiver cadastrado (ex: dados vindos de Pessoa)
+            // Verificar se já existe um morador com esse user_id no mesmo condomínio
+            $existingResident = $this->repository->findWhereFirst('user_id', (string) $user->id);
+            if ($existingResident && $existingResident->condominium_id == $data['resident']['condominium_id']) {
+                return ['success' => false, 'message' => 'Morador já cadastrado neste condomínio!'];
+            }
+
+            // Reusar o user existente para criar o morador
+            $data['existing_user_id'] = $user->id;
         }
 
         $this->repository->store($data);
@@ -308,6 +319,11 @@ class ResidentService {
 
     public function getProfile(string $slug) {
         return $this->repository->profile($slug);
+    }
+    
+    public function applyFilter(array $items) {
+
+        return $this->repository->applyFilter($items);
     }
 
 }

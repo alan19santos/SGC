@@ -163,28 +163,28 @@ class OccurrentRepository extends BaseRepository {
      */
     public function applyFilter(array $items)
     {
-        $relationship = $this->loadRelationships($this->occurrence, ['user']);
+        $query = $this->occurrence->with(['user', 'typeOccurrence', 'statusOcurrence', 'statusPriority']);
 
         foreach ($items as $key => $value) {
-            if ($value) {
-                if (in_array($key, ['title','user_id','type_occurrence_id','isResolved','resolution'])) {
-                    if ($key == 'title') {
-                        $relationship->whereRaw("UPPER(occurrence.title) like UPPER('%{$value}%')");
-                    }
-                    if ($key == 'type_occurrence_id') {
-                        $relationship->where("occurrence.type_occurrence_id", $value);
-                    }
-                    if ($key == 'isResolved') {
-                        $relationship->where("occurrence.isResolved", $value);
-                    }
-                    if ($key == 'user_id') {
-                        $relationship->where("occurrence.user_id", $value);
-                    }
-                }
+            if (!$value) continue;
+
+            if ($key === 'title') {
+                $query->where('title', 'ILIKE', "%{$value}%");
+            }
+            if ($key === 'type_occurrence_id') {
+                $query->where('type_occurrence_id', $value);
+            }
+            if ($key === 'status_occurrence_id') {
+                $query->where('status_occurrence_id', $value);
+            }
+            if ($key === 'user_id') {
+                $query->where('user_id', $value);
             }
         }
 
-        return $relationship->orderBy('date_occurrence')->get();
+        $totalPage = (isset($items['per_page']) && $items['per_page'] > 0) ? (int) $items['per_page'] : 10;
+
+        return $query->orderBy('created_at', 'desc')->paginate($totalPage);
     }
 
 

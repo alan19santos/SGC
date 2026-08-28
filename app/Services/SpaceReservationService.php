@@ -43,14 +43,14 @@ class SpaceReservationService {
     public function store($data) {
 
         $reserved = $this->repository->applyFilter($data);
-        if ($reserved['total'] > 0) {
+        if ($reserved->total() > 0) {
             return ['success'=> false, 'message'=>'Já existe uma reserva nesta data e hora!'];
         }
-        $status = $this->repository->statusReserve($data['slug']);
+        $status = $this->repository->statusReserve($data['slug'] ?? 'aguardando');
 
         $this->repository->store(['date_reserved'=> $data['date_reserved'],
                                         'time'=> $data['time'],
-                                        'observation'=> $data['observation'],
+                                        'observation'=> $data['observation'] ?? '',
                                         'user_id'=> $data['user_id'],
                                         'type_reserved_id'=> $data['type_reserved_id'],
                                         'status_reserve_id' => $status->id]);

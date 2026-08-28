@@ -18,8 +18,8 @@ class StoreUpdateSpaceReservationFormRequest extends FormRequest
     {
         return [
             'date_reserved'          => 'required',
-            'user_id'          => 'required|number',
-            'type_reserved_id'    => 'required|number',
+            'user_id'          => 'required|integer',
+            'type_reserved_id'    => 'required|integer',
         ];
     }
 

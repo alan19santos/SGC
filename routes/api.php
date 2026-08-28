@@ -26,124 +26,20 @@ use Illuminate\Support\Facades\Route;
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "api" middleware group. Make something great!
-|
 */
 
 Route::post('/login', [AuthController::class, 'login']);
-Route::get('/teste-telescope', function () {
-    return app()->providerIsLoaded(Laravel\Telescope\TelescopeServiceProvider::class) ? 'Provider ativo' : 'Provider INATIVO';
-});
 
 Route::middleware('auth:sanctum')->group(function () {
 
-    Route::prefix('user')->group(function () {
-        Route::post('', [UserController::class, 'store']);
-        Route::get('', [UserController::class, 'index']);
-        Route::put('/{id}', [UserController::class, 'update']);
-        Route::get('/{id}', [UserController::class, 'show']);
-        Route::get('/profile/{id}', [UserController::class, 'getProfileUser']);
-        Route::delete('/{id}', [UserController::class, 'destroy']);
+    // ──────────────────────────────────────────────────────────────────────
+    // Rotas acessíveis a TODOS os perfis autenticados
+    // ──────────────────────────────────────────────────────────────────────
+
+    Route::prefix('notifications')->group(function () {
+        Route::get('', [NotificationsController::class, 'myNotifications']);
+        Route::put('/{id}/read', [NotificationsController::class, 'markAsRead']);
     });
-
-    Route::prefix('resident')->group(function () {
-        Route::get('', [ResidentController::class, 'index']);
-        Route::post('', [ResidentController::class, 'store']);
-        Route::post('/storeFormData', [ResidentController::class, 'storeFormData']);
-        Route::put('/{id}', [ResidentController::class, 'update']);
-        Route::put('/updateFormData/{id}', [ResidentController::class, 'updateFormData']);
-        Route::put('/beforeUpdate/{id}', [ResidentController::class, 'beforeUpdate']);
-        Route::get('/{id}', [ResidentController::class, 'show']);
-        Route::post('/update-image/{id}', [ResidentController::class, 'updateImage']);
-        Route::get('/getImageUsers/{id}', [ResidentController::class, 'getImageUsers']);
-        Route::get('/getPeopleCpf/{cpf}', [ResidentController::class, 'getPeopleCpf']);
-        Route::get('/getProfile/{slug}',[ResidentController::class, 'getProfile']);
-        Route::delete('/{id}', [ResidentController::class, 'destroy']);
-
-    });
-
-    Route::prefix('condominium')->group(function () {
-        Route::post('/', [CondominiumController::class, 'store']);
-        Route::get('', [CondominiumController::class, 'index']);
-        Route::put('/{id}', [CondominiumController::class, 'update']);
-        Route::get('/{id}', [CondominiumController::class, 'show']);
-    });
-
-    Route::prefix('tower')->group(function () {
-        Route::post('/', [TowerController::class, 'store']);
-        Route::get('', [TowerController::class, 'index']);
-        Route::put('/{id}', [TowerController::class, 'update']);
-        Route::get('/{id}', [TowerController::class, 'show']);
-        Route::get('/getTowerCondominium/{id}', [TowerController::class, 'getTowerCondominium']);
-    });
-
-    //ApartmentController
-    Route::prefix('apartment')->group(function () {
-        Route::post('/', [ApartmentController::class, 'store']);
-        Route::get('', [ApartmentController::class, 'index']);
-        Route::put('/{id}', [ApartmentController::class, 'update']);
-        Route::get('/{id}', [ApartmentController::class, 'show']);
-        Route::get('/getTowerApartment/{id}', [ApartmentController::class, 'getTowerApartment']);
-    });
-
-    Route::prefix('service-provider')->group(function () {
-        Route::post('/',[ServiceProviderController::class, 'store']);
-        Route::get('', [ServiceProviderController::class, 'index']);
-        Route::put('/{id}', [ServiceProviderController::class, 'update']);
-        Route::get('/{id}', [ServiceProviderController::class, 'show']);
-        Route::delete('/{id}', [ServiceProviderController::class, 'destroy']);
-    });
-
-    Route::prefix('visitors')->group(function () {
-        Route::post('', [VisitorsController::class, 'store']);
-        Route::get('', [VisitorsController::class, 'index']);
-        Route::put('/{id}', [VisitorsController::class, 'update']);
-        Route::get('/{id}', [VisitorsController::class, 'show']);
-        Route::get('/getPeopleCpf/{cpf}', [VisitorsController::class, 'getPeopleCpf']);
-    });
-
-
-    Route::prefix('reserved')->group(function () {
-        Route::get('/getTypeReserved', [SpaceReservationController::class, 'typeReserved']);
-        Route::post('', [SpaceReservationController::class, 'store']);
-        Route::get('', [SpaceReservationController::class, 'index']);
-        Route::put('/{id}', [SpaceReservationController::class, 'update']);
-        Route::post('/validStatusReserved', [SpaceReservationController::class, 'validStatus']);
-        Route::get('/status', [SpaceReservationController::class, 'getStatus']);
-        Route::get('/{id}', [SpaceReservationController::class, 'show']);
-        // Route::put('/isValidade/{id}', [SpaceReservationController::class,'isValidade']);
-     });
-
-
-    Route::prefix('occurrence')->group(function () {
-        Route::get('/getTypeOccurrence', [OccurrenceController::class,'typeOccurrence']);
-        Route::get('/getStatusOccurrence', [OccurrenceController::class,'statusOccurrence']);
-        Route::get('/getStatusPriority', [OccurrenceController::class,'statusPriority']);
-        Route::get('/getAllByResident/{residentId}', [OccurrenceController::class,'getAllByResident']);
-        Route::get('', [OccurrenceController::class,'index']);
-        Route::get('/{id}', [OccurrenceController::class,'show']);
-        Route::post('', [OccurrenceController::class,'store']);
-        Route::post('/historicOccurrence', [OccurrenceController::class,'storeHistoric']);
-        Route::put('/{id}', [OccurrenceController::class,'update']);
-        Route::delete('', [OccurrenceController::class,'delete']);
-    });
-
-    Route::prefix('status')->group(function () {
-        Route::get('', [StatusController::class, 'index']);
-    });
-
-    Route::prefix('typeService')->group(function() {
-        Route::get('/{id}', [TypeServiceController::class, 'show']);
-        Route::get('', [TypeServiceController::class, 'index']);
-    });
-
-    Route::prefix('drive')->group(function () {
-        Route::get('', [DriveController::class, 'index']);
-    });
-
 
     Route::prefix('profile')->group(function () {
         Route::get('', [ProfileController::class, 'index']);
@@ -151,60 +47,178 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/filterSlugId/{id}', [ProfileController::class, 'filterSlugId']);
     });
 
-    Route::prefix('people')->group(function() {
-        Route::get('/getTypeAccount', [PeoplesController::class, 'getTypeAccount']);
-        Route::post('', [PeoplesController::class, 'store']);
-        Route::post('/storeFormData', [PeoplesController::class, 'storeFormData']);
-        Route::get('', [PeoplesController::class, 'index']);
-        Route::put('/updateFormData/{id}', [PeoplesController::class, 'updateFormData']);
-        Route::put('/{id}', [PeoplesController::class, 'update']);
-        Route::get('/{id}', [PeoplesController::class, 'show']);
-        Route::get('/getPeopleCpf/{cpf}', [PeoplesController::class, 'getPeopleCpf']);
-        Route::delete('/{id}', [PeoplesController::class, 'destroy']);
+    Route::prefix('status')->group(function () {
+        Route::get('', [StatusController::class, 'index']);
     });
 
-    Route::prefix('company')->group(function() {
-        Route::get('', [CompanyController::class, 'index']);
-        Route::get('/{id}', [CompanyController::class, 'show']);
-        Route::post('', [CompanyController::class, 'store']);
-        Route::put('/{id}', [CompanyController::class, 'update']);
-        Route::delete('/{id}', [CompanyController::class, 'destroy']);
-
+    Route::prefix('drive')->group(function () {
+        Route::get('', [DriveController::class, 'index']);
     });
 
-    Route::prefix('employee')->group(function() {
-        Route::get('/getPeopleCpf/{cpf}', [EmployeeController::class, 'getPeopleCpf']);
-        Route::get('', [EmployeeController::class, 'index']);
-        Route::post('', [EmployeeController::class, 'store']);
-        Route::get('/getType', [EmployeeController::class, 'getType']);
-        Route::put('/{id}', [EmployeeController::class, 'update']);
-        Route::post('/storeFormData', [EmployeeController::class, 'storeFormData']);
-        Route::put('/updateFormData/{id}', [EmployeeController::class, 'updateFormData']);
-        Route::delete('/{id}', [EmployeeController::class, 'destroy']);
+    // ──────────────────────────────────────────────────────────────────────
+    // Rotas para morador, admin e master
+    // ──────────────────────────────────────────────────────────────────────
+
+    Route::middleware('profile:admin,master,morador')->group(function () {
+
+        Route::prefix('reserved')->group(function () {
+            Route::get('/getTypeReserved', [SpaceReservationController::class, 'typeReserved']);
+            Route::post('', [SpaceReservationController::class, 'store']);
+            Route::get('', [SpaceReservationController::class, 'index']);
+            Route::get('/status', [SpaceReservationController::class, 'getStatus']);
+            Route::get('/{id}', [SpaceReservationController::class, 'show']);
+        });
+
+        Route::prefix('occurrence')->group(function () {
+            Route::get('/getTypeOccurrence', [OccurrenceController::class, 'typeOccurrence']);
+            Route::get('/getStatusOccurrence', [OccurrenceController::class, 'statusOccurrence']);
+            Route::get('/getStatusPriority', [OccurrenceController::class, 'statusPriority']);
+            Route::get('/getAllByResident/{residentId}', [OccurrenceController::class, 'getAllByResident']);
+            Route::get('', [OccurrenceController::class, 'index']);
+            Route::get('/{id}', [OccurrenceController::class, 'show']);
+            Route::post('', [OccurrenceController::class, 'store']);
+        });
     });
 
-    Route::prefix('revenue-expense')->group(function() {
-        Route::get('/getTypeRevenueExpense', [RevenueExpenseController::class, 'getTypeRevenueExpense']);
-        Route::get('/financial-categories', [RevenueExpenseController::class, 'getFinancialCategories']);
-        Route::get('/financial-types', [RevenueExpenseController::class, 'getTypeRevenueExpense']);
-        Route::get('', [RevenueExpenseController::class, 'index']);
-        Route::get('/{id}', [RevenueExpenseController::class, 'show']);
-        Route::post('', [RevenueExpenseController::class, 'store']);
-        Route::put('/{id}', [RevenueExpenseController::class, 'update']);
-        Route::delete('/{id}', [RevenueExpenseController::class, 'destroy']);
+    // ──────────────────────────────────────────────────────────────────────
+    // Rotas para admin, master e auxiliar (financeiro)
+    // ──────────────────────────────────────────────────────────────────────
+
+    Route::middleware('profile:admin,master,auxiliar')->group(function () {
+
+        Route::prefix('revenue-expense')->group(function () {
+            Route::get('/getTypeRevenueExpense', [RevenueExpenseController::class, 'getTypeRevenueExpense']);
+            Route::get('/financial-categories', [RevenueExpenseController::class, 'getFinancialCategories']);
+            Route::get('/financial-types', [RevenueExpenseController::class, 'getTypeRevenueExpense']);
+            Route::get('', [RevenueExpenseController::class, 'index']);
+            Route::get('/{id}', [RevenueExpenseController::class, 'show']);
+            Route::post('', [RevenueExpenseController::class, 'store']);
+            Route::put('/{id}', [RevenueExpenseController::class, 'update']);
+            Route::delete('/{id}', [RevenueExpenseController::class, 'destroy']);
+        });
+
+        Route::prefix('fines')->group(function () {
+            Route::get('', [FineController::class, 'index']);
+            Route::get('/{id}', [FineController::class, 'show']);
+            Route::post('', [FineController::class, 'store']);
+            Route::delete('/{id}', [FineController::class, 'destroy']);
+        });
+
+        Route::prefix('people')->group(function () {
+            Route::get('/getTypeAccount', [PeoplesController::class, 'getTypeAccount']);
+            Route::post('', [PeoplesController::class, 'store']);
+            Route::post('/storeFormData', [PeoplesController::class, 'storeFormData']);
+            Route::get('', [PeoplesController::class, 'index']);
+            Route::put('/updateFormData/{id}', [PeoplesController::class, 'updateFormData']);
+            Route::put('/{id}', [PeoplesController::class, 'update']);
+            Route::get('/{id}', [PeoplesController::class, 'show']);
+            Route::get('/getPeopleCpf/{cpf}', [PeoplesController::class, 'getPeopleCpf']);
+            Route::delete('/{id}', [PeoplesController::class, 'destroy']);
+        });
     });
 
-    Route::prefix('fines')->group(function() {
-        Route::get('', [FineController::class, 'index']);
-        Route::get('/{id}', [FineController::class, 'show']);
-        Route::post('', [FineController::class, 'store']);
-        Route::delete('/{id}', [FineController::class, 'destroy']);
+    // ──────────────────────────────────────────────────────────────────────
+    // Rotas exclusivas para admin e master
+    // ──────────────────────────────────────────────────────────────────────
 
+    Route::middleware('profile:admin,master')->group(function () {
+
+        Route::prefix('user')->group(function () {
+            Route::post('', [UserController::class, 'store']);
+            Route::get('', [UserController::class, 'index']);
+            Route::put('/{id}', [UserController::class, 'update']);
+            Route::get('/{id}', [UserController::class, 'show']);
+            Route::get('/profile/{id}', [UserController::class, 'getProfileUser']);
+            Route::delete('/{id}', [UserController::class, 'destroy']);
+        });
+
+        Route::prefix('resident')->group(function () {
+            Route::get('', [ResidentController::class, 'index']);
+            Route::post('', [ResidentController::class, 'store']);
+            Route::post('/storeFormData', [ResidentController::class, 'storeFormData']);
+            Route::put('/{id}', [ResidentController::class, 'update']);
+            Route::put('/updateFormData/{id}', [ResidentController::class, 'updateFormData']);
+            Route::put('/beforeUpdate/{id}', [ResidentController::class, 'beforeUpdate']);
+            Route::get('/{id}', [ResidentController::class, 'show']);
+            Route::post('/update-image/{id}', [ResidentController::class, 'updateImage']);
+            Route::get('/getImageUsers/{id}', [ResidentController::class, 'getImageUsers']);
+            Route::get('/getPeopleCpf/{cpf}', [ResidentController::class, 'getPeopleCpf']);
+            Route::get('/getProfile/{slug}', [ResidentController::class, 'getProfile']);
+            Route::delete('/{id}', [ResidentController::class, 'destroy']);
+        });
+
+        Route::prefix('condominium')->group(function () {
+            Route::post('/', [CondominiumController::class, 'store']);
+            Route::get('', [CondominiumController::class, 'index']);
+            Route::put('/{id}', [CondominiumController::class, 'update']);
+            Route::get('/{id}', [CondominiumController::class, 'show']);
+        });
+
+        Route::prefix('tower')->group(function () {
+            Route::post('/', [TowerController::class, 'store']);
+            Route::get('', [TowerController::class, 'index']);
+            Route::put('/{id}', [TowerController::class, 'update']);
+            Route::get('/{id}', [TowerController::class, 'show']);
+            Route::get('/getTowerCondominium/{id}', [TowerController::class, 'getTowerCondominium']);
+        });
+
+        Route::prefix('apartment')->group(function () {
+            Route::post('/', [ApartmentController::class, 'store']);
+            Route::get('', [ApartmentController::class, 'index']);
+            Route::put('/{id}', [ApartmentController::class, 'update']);
+            Route::get('/{id}', [ApartmentController::class, 'show']);
+            Route::get('/getTowerApartment/{id}', [ApartmentController::class, 'getTowerApartment']);
+        });
+
+        Route::prefix('service-provider')->group(function () {
+            Route::post('/', [ServiceProviderController::class, 'store']);
+            Route::get('', [ServiceProviderController::class, 'index']);
+            Route::put('/{id}', [ServiceProviderController::class, 'update']);
+            Route::get('/{id}', [ServiceProviderController::class, 'show']);
+            Route::delete('/{id}', [ServiceProviderController::class, 'destroy']);
+        });
+
+        Route::prefix('visitors')->group(function () {
+            Route::post('', [VisitorsController::class, 'store']);
+            Route::get('', [VisitorsController::class, 'index']);
+            Route::put('/{id}', [VisitorsController::class, 'update']);
+            Route::get('/{id}', [VisitorsController::class, 'show']);
+            Route::get('/getPeopleCpf/{cpf}', [VisitorsController::class, 'getPeopleCpf']);
+        });
+
+        Route::prefix('reserved')->group(function () {
+            Route::put('/{id}', [SpaceReservationController::class, 'update']);
+            Route::post('/validStatusReserved', [SpaceReservationController::class, 'validStatus']);
+        });
+
+        Route::prefix('occurrence')->group(function () {
+            Route::post('/historicOccurrence', [OccurrenceController::class, 'storeHistoric']);
+            Route::put('/{id}', [OccurrenceController::class, 'update']);
+            Route::delete('', [OccurrenceController::class, 'delete']);
+        });
+
+        Route::prefix('company')->group(function () {
+            Route::get('', [CompanyController::class, 'index']);
+            Route::get('/{id}', [CompanyController::class, 'show']);
+            Route::post('', [CompanyController::class, 'store']);
+            Route::put('/{id}', [CompanyController::class, 'update']);
+            Route::delete('/{id}', [CompanyController::class, 'destroy']);
+        });
+
+        Route::prefix('employee')->group(function () {
+            Route::get('/getPeopleCpf/{cpf}', [EmployeeController::class, 'getPeopleCpf']);
+            Route::get('', [EmployeeController::class, 'index']);
+            Route::post('', [EmployeeController::class, 'store']);
+            Route::get('/getType', [EmployeeController::class, 'getType']);
+            Route::put('/{id}', [EmployeeController::class, 'update']);
+            Route::post('/storeFormData', [EmployeeController::class, 'storeFormData']);
+            Route::put('/updateFormData/{id}', [EmployeeController::class, 'updateFormData']);
+            Route::delete('/{id}', [EmployeeController::class, 'destroy']);
+        });
+
+        Route::prefix('typeService')->group(function () {
+            Route::get('/{id}', [TypeServiceController::class, 'show']);
+            Route::get('', [TypeServiceController::class, 'index']);
+        });
     });
-
-    Route::prefix('notifications')->group(function() {
-        Route::get('', [NotificationsController::class, 'myNotifications']);
-        Route::put('/{id}/read', [NotificationsController::class, 'markAsRead']);
-    });
-
 });

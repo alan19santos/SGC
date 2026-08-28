@@ -44,10 +44,13 @@ class AuthController extends Controller
     private function loginUser($email) {
 
         $user = $this->userService->findByEmail($email);
+        $user->load('profile');
 
-        return ['email' => $user->email,
+        return [
+            'email' => $user->email,
             'name' => $user->name,
             'profile_id' => $user->profile_id,
+            'profile_slug' => $user->profile?->slug,
             'id' => $user->id,
             'users_condominiums' => $user->condominiums
         ];

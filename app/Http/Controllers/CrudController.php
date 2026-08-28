@@ -22,15 +22,13 @@ class CrudController extends Controller
 
     public function index(Request $request): Response
     {
-        {
-            if($request->input()) {
-                if($request->input('per_page')) {
-                    return response($this->service->paginate($request->input('per_page')), 200);
-                }
-                return response($this->service->applyFilter($request->input(), 200));
-            } else {
-                return response($this->service->getAll(), 200);
+        if ($request->input()) {
+            if ($request->input('per_page') && !$request->has('name') && !$request->has('cpf') && !$request->has('rg')) {
+                return response($this->service->paginate($request->input('per_page')), 200);
             }
+            return response($this->service->applyFilter($request->input()), 200);
+        } else {
+            return response($this->service->getAll(), 200);
         }
     }
 

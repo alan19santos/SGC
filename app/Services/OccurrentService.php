@@ -111,6 +111,13 @@ class OccurrentService {
     public function store(array $data)
     {
         $isResponsible = isset($data['occurrence']['responsible_id']) && !empty($data['occurrence']['responsible_id']) ? true : false;
+
+        // Se responsible_id está no nível raiz (enviado pelo front), mover para dentro de occurrence
+        if (!$isResponsible && isset($data['responsible_id']) && !empty($data['responsible_id'])) {
+            $data['occurrence']['responsible_id'] = $data['responsible_id'];
+            $isResponsible = true;
+        }
+
         $isResident = isset($data['occurrence']['resident_id']) && !empty($data['occurrence']['resident_id']) ? true : false;
         Log::debug('Dados recebidos para criar ocorrência: ', ['data' => $data]);
         try {
@@ -124,6 +131,13 @@ class OccurrentService {
             } elseif ($resident) {
                 $condominiumId = $resident->condominium_id;
                 $data['occurrence']['condominium_id'] = $condominiumId;
+            } else {
+                // Fallback: buscar pela tabela condominium_user
+                $condominiumUser = \App\Models\CondominiumUser::where('user_id', Auth::id())->first();
+                if ($condominiumUser) {
+                    $condominiumId = $condominiumUser->condominium_id;
+                    $data['occurrence']['condominium_id'] = $condominiumId;
+                }
             }
 
             if (!$condominiumId) {
@@ -211,8 +225,10 @@ class OccurrentService {
                 $this->sendMail($user, 'Abertura de chamado', $occurrence);
             }
 
+        } catch (\DomainException $ex) {
+            throw $ex;
         } catch (\Exception $ex) {
-            Log::error('Erro ao criar ocorrência: ', [$ex->getMessage()]);
+            Log::error('Erro ao criar ocorrência: ', ['message' => $ex->getMessage(), 'trace' => $ex->getTraceAsString()]);
             throw new \DomainException('Erro ao criar ocorrência. Por favor, tente novamente.');
         }
     }
@@ -335,6 +351,11 @@ class OccurrentService {
         $data['email'] = $user->email;
         $mail->sendNotification($data);
 
+    }
+
+    public function applyFilter(array $items) {
+
+        return $this->repository->applyFilter($items);
     }
 
 }

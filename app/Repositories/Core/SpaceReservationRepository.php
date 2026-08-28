@@ -46,7 +46,7 @@ class SpaceReservationRepository extends BaseRepository {
      * @return object
      */
     public function findById(int $id): object {
-        return $this->loadRelationships( $this->entity, ['type','user', 'status'] )->where('user_id', $id)->first();
+        return $this->loadRelationships( $this->entity, ['type','user', 'status'] )->where('id', $id)->firstOrFail();
     }
 
 
@@ -86,9 +86,8 @@ class SpaceReservationRepository extends BaseRepository {
 
         try {
             DB::beginTransaction();
-            // Log::debug('isValidade', [$entity]);
-            $entity->status_reserve_id = $value['status_reserve_id'];
-            $entity->save();
+            SpaceReservation::where('id', $entity->id)
+                ->update(['status_reserve_id' => $value['status_reserve_id']]);
             DB::commit();
             return ['status'=>true];
         } catch (\Exception $ex) {
@@ -111,7 +110,7 @@ class SpaceReservationRepository extends BaseRepository {
 
         foreach ($items as $key => $value) {
             if ($value) {
-                if (in_array($key, ['date_reserved','time','type_reserved_id'])) {
+                if (in_array($key, ['date_reserved','time','type_reserved_id','user_id'])) {
                     if ($key == 'date_reserved') {
                         $relationship->where("space_reservation.date_reserved", "=", $value);
                     }
@@ -121,7 +120,9 @@ class SpaceReservationRepository extends BaseRepository {
                     if ($key == 'type_reserved_id') {
                         $relationship->where("space_reservation.type_reserved_id","=", $value);
                     }
-
+                    if ($key == 'user_id') {
+                        $relationship->where("space_reservation.user_id","=", $value);
+                    }
                 }
             }
         }
